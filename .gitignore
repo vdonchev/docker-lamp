@@ -1,0 +1,9 @@
+/app/*
+!/app/.gitkeep
+/var/log/*
+!/var/log/.gitkeep
+/var/mysql/*
+.env
+/config/apache/ssl/*
+!/config/apache/ssl/.gitkeep
+.idea/*

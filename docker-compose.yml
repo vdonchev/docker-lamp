@@ -1,0 +1,35 @@
+services:
+  lamp.web:
+    container_name: apache-${PHP_VERSION}
+    build:
+      context: ./bin/${PHP_VERSION}
+    ports:
+      - ${HTTP_PORT}:80
+      - ${HTTPS_PORT}:443
+    restart: unless-stopped
+    volumes:
+      - ${WWW}:/var/www/html
+      - ./config/php/php.ini:/usr/local/etc/php/php.ini
+      - ./var/log/apache:/var/log/apache2
+      - ./config/apache/vhosts:/etc/apache2/sites-enabled
+      - ./config/apache/ssl:/etc/ssl/lamp
+    depends_on:
+      - lamp.db
+    networks:
+      - lamp
+  lamp.db:
+    container_name: ${MYSQL_VERSION}
+    build:
+      context: ./bin/${MYSQL_VERSION}
+    ports:
+      - ${MYSQL_PORT}:3306
+    restart: unless-stopped
+    volumes:
+      - ./var/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+    networks:
+      - lamp
+networks:
+  lamp:
+    driver: bridge
