@@ -29,6 +29,7 @@ services:
     restart: always
     volumes:
       - ${DB_HOST}:/var/lib/mysql
+      - ./config/mysql/my.cnf:/etc/mysql/conf.d/custom-configs.cnf
     environment:
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
     networks:
@@ -43,10 +44,28 @@ services:
       - "6379:6379"
     depends_on:
       - lamp.db
-    networks:
-      - lamp
     profiles:
       - redis-enabled
+    networks:
+      - lamp
+  lamp.pma:
+    container_name: pma
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - ${PMA_PORT}:80
+    environment:
+      PMA_HOST: ${MYSQL_VERSION}
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+    depends_on:
+      - lamp.db
+    profiles:
+      - pma-enabled
+    networks:
+      - lamp
 networks:
   lamp:
     driver: bridge

@@ -29,7 +29,7 @@ RUN pecl install redis && docker-php-ext-enable redis
 RUN pecl install xdebug-3.4.0 && docker-php-ext-enable xdebug && mkdir /var/log/xdebug
 
 # Enable additional extensions
-RUN a2enmod ssl rewrite headers
+RUN a2enmod ssl rewrite headers proxy proxy_http
 
 # Add user
 #RUN useradd -u 1001 appuser
