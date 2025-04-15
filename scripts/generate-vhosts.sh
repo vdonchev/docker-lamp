@@ -29,6 +29,8 @@ fi
 
 # Create (and empty) a temporary file for dynamic vhost entries
 TMP_VHOSTS="$(mktemp)"
+
+# Truncate the temporary vhosts file (no-op + redirect)
 : > "$TMP_VHOSTS"
 
 # Read the project list files
@@ -112,7 +114,7 @@ read_projects "$LIST_LOCAL"
 
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
-# Combine everything and remove comments and empty lin
+# Combine everything and remove comments and empty lines
 {
   [[ -f "$DEFAULT_VHOSTS" ]] && sed '/^\s*#/d;/^\s*\/\//d' "$DEFAULT_VHOSTS" && echo
   sed '/^\s*#/d;/^\s*\/\//d' "$TMP_VHOSTS" && echo
