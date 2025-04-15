@@ -29,7 +29,7 @@ fi
 
 # Create (and empty) a temporary file for dynamic vhost entries
 TMP_VHOSTS="$(mktemp)"
-> "$TMP_VHOSTS"
+: > "$TMP_VHOSTS"
 
 # Read the project list files
 read_projects() {
