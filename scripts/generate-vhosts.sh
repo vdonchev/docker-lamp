@@ -40,6 +40,12 @@ read_projects() {
     # Skip comments and empty lines
     [[ "$line" =~ ^[[:space:]]*$ || "$line" =~ ^[[:space:]]*# ]] && continue
 
+    # Validate format: domain,path
+    if [[ ! "$line" =~ ^[[:space:]]*[^,#[:space:]][^,]*,[^[:space:]].*$ ]]; then
+      echo "⚠️  Invalid line format, skipping: $line"
+      continue
+    fi
+
     IFS=',' read -r domain path <<< "$line"
     [[ -z "$domain" || -z "$path" ]] && continue
 
@@ -112,6 +118,8 @@ mkdir -p "$(dirname "$OUTPUT_FILE")"
   sed '/^\s*#/d;/^\s*\/\//d' "$TMP_VHOSTS" && echo
   [[ -f "$LOCAL_VHOSTS" ]] && sed '/^\s*#/d;/^\s*\/\//d' "$LOCAL_VHOSTS"
 } | sed -e ':a' -e '/^\n*$/{$d;N;ba' -e '}' > "$OUTPUT_FILE"
+
+chmod -R a+rw "$VHOSTS_DIR/generated"
 
 # Cleanup
 rm "$TMP_VHOSTS"
