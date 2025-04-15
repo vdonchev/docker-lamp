@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Абсолютна пътека до директорията, където се намира скриптът
+# Absolute path to the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Базова директория на проекта (приемаме, че е родителската директория на scripts)
+# Base project directory (assumed to be the parent of the scripts directory)
 BASE_DIR="$(realpath "$SCRIPT_DIR/..")"
 
-# Пътища
+# Paths
 PROJECTS_DIR="$BASE_DIR/config/projects"
 VHOSTS_DIR="$BASE_DIR/config/apache/vhosts"
 SSL_DIR="$BASE_DIR/config/apache/ssl"
@@ -21,23 +21,23 @@ LOCAL_VHOSTS="$VHOSTS_DIR/httpd.local.conf"
 CRT_FILE="$SSL_DIR/dev.crt"
 KEY_FILE="$SSL_DIR/dev.key"
 
-# Проверка за SSL сертификати
+# Check if SSL certificates exist
 SSL_ENABLED=false
 if [[ -f "$CRT_FILE" && -f "$KEY_FILE" ]]; then
   SSL_ENABLED=true
 fi
 
-# Създаваме (и изчистваме) временен файл за динамичните vhost-и
+# Create (and empty) a temporary file for dynamic vhost entries
 TMP_VHOSTS="$(mktemp)"
 > "$TMP_VHOSTS"
 
-# Четене на списъците с проекти
+# Read the project list files
 read_projects() {
   local file="$1"
   [[ -f "$file" ]] || return
 
   while IFS= read -r line || [[ -n "$line" ]]; do
-    # Пропускаме коментари и празни редове
+    # Skip comments and empty lines
     [[ "$line" =~ ^[[:space:]]*$ || "$line" =~ ^[[:space:]]*# ]] && continue
 
     IFS=',' read -r domain path <<< "$line"
@@ -50,7 +50,7 @@ read_projects() {
   done < "$file"
 }
 
-# Генериране на HTTP vhost
+# Generate HTTP vhost entry
 generate_http_vhost() {
   local domain="$1"
   local path="$2"
@@ -73,7 +73,7 @@ generate_http_vhost() {
 EOF
 }
 
-# Генериране на HTTPS vhost
+# Generate HTTPS vhost entry
 generate_https_vhost() {
   local domain="$1"
   local path="$2"
@@ -100,20 +100,20 @@ generate_https_vhost() {
 EOF
 }
 
-# Генерираме vhost-ите от списъците
+# Generate vhosts from the project lists
 read_projects "$LIST_MAIN"
 read_projects "$LIST_LOCAL"
 
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
-# Обединяваме всичко и премахваме коментари и празни редове
+# Combine everything and remove comments and empty lin
 {
   [[ -f "$DEFAULT_VHOSTS" ]] && sed '/^\s*#/d;/^\s*\/\//d' "$DEFAULT_VHOSTS" && echo
   sed '/^\s*#/d;/^\s*\/\//d' "$TMP_VHOSTS" && echo
   [[ -f "$LOCAL_VHOSTS" ]] && sed '/^\s*#/d;/^\s*\/\//d' "$LOCAL_VHOSTS"
 } | sed -e ':a' -e '/^\n*$/{$d;N;ba' -e '}' > "$OUTPUT_FILE"
 
-# Почистване
+# Cleanup
 rm "$TMP_VHOSTS"
 
 printf " ✔ Generated %s\n" "$OUTPUT_FILE"

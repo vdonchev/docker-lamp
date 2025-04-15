@@ -1,43 +1,46 @@
-.PHONY: up up-pma up-redis up-all init rebuild down logs
+.PHONY: up up-pma up-redis up-all init rebuild down logs cert
 
-# 🟢 Генерира vhosts локално и стартира основните контейнери (без lamp.init)
+# Generates vhosts and starts main containers (excluding lamp.init)
 up:
 	@echo " ✔ Generating vhost file"
-	./scripts/generate-vhosts.sh
-	docker compose up -d --scale lamp.init=0 lamp.web lamp.db
+	@./scripts/generate-vhosts.sh
+	@docker compose up -d --scale lamp.init=0 lamp.web lamp.db
 
-# 🟡 Стартира с phpMyAdmin
+# Generates vhosts and starts containers with phpMyAdmin
 up-pma:
 	@echo " ✔ Generating vhost file"
-	./scripts/generate-vhosts.sh
-	docker compose up -d --scale lamp.init=0 lamp.web lamp.db lamp.pma
+	@./scripts/generate-vhosts.sh
+	@docker compose up -d --scale lamp.init=0 lamp.web lamp.db lamp.pma
 
-# 🔴 Стартира с Redis
+# Generates vhosts and starts containers with Redis support
 up-redis:
 	@echo " ✔ Generating vhost file"
-	./scripts/generate-vhosts.sh
-	COMPOSE_PROFILES=with-redis docker compose up -d --scale lamp.init=0 lamp.web lamp.db lamp.redis
+	@./scripts/generate-vhosts.sh
+	@COMPOSE_PROFILES=with-redis docker compose up -d --scale lamp.init=0 lamp.web lamp.db lamp.redis
 
-# 🟣 Стартира ВСИЧКО (phpMyAdmin + Redis)
+# Generates vhosts and starts all containers (phpMyAdmin + Redis)
 up-all:
 	@echo " ✔ Generating vhost file"
 	@./scripts/generate-vhosts.sh
 	@COMPOSE_PROFILES=with-redis,with-pma docker compose up -d --scale lamp.init=0
 
-# 🧱 Старт на lamp.init контейнера (ако искаш ръчно вътре в compose)
+# Manually runs the lamp.init container (for manual setup tasks)
 init:
 	docker compose run --rm lamp.init
 
-# ♻️ Спира всичко и стартира отново (без lamp.init)
+# Stops all containers and restarts them (excluding lamp.init)
 rebuild:
-	docker compose down --volumes
-	$(MAKE) up
+	@docker compose down --volumes
+	@$(MAKE) up
 
-# ⛔ Спира и премахва всичко
+# Completely stops and removes all containers, volumes, and orphan containers
 down:
-	COMPOSE_PROFILES=with-redis,with-pma docker compose down --volumes --remove-orphans
+	@COMPOSE_PROFILES=with-redis,with-pma docker compose down
 
-
-# 📄 Гледаш логовете на Apache
+# Shows Apache logs (adjust container name if PHP version changes)
 logs:
 	docker logs -f apache-php84
+
+# Generates a multidomain self-signed SSL certificate (dev.crt / dev.key)
+cert:
+	./scripts/generate-multidomain-ssl.sh
