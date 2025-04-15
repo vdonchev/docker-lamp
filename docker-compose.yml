@@ -1,4 +1,19 @@
 services:
+  lamp.init:
+    image: debian:bullseye-slim
+    container_name: lamp-init
+    volumes:
+      - ./scripts:/scripts
+      - ./config:/config
+    entrypoint: >
+      /bin/bash -c "echo '[init] Running vhost generation...' &&
+      chmod +x /scripts/generate-vhosts.sh &&
+      /scripts/generate-vhosts.sh &&
+      echo '[init] Done.'"
+    depends_on: [ ]
+    networks:
+      - lamp
+    restart: "no"
   lamp.web:
     container_name: apache-${PHP_VERSION}
     build:
@@ -11,7 +26,7 @@ services:
       - ${WEB_HOST}:/var/www
       - ${WEB_STORAGE}:/home/storage
       - ./config/php/php.ini:/usr/local/etc/php/php.ini
-      - ./config/apache/vhosts:/etc/apache2/sites-enabled
+      - ./config/apache/vhosts/generated:/etc/apache2/sites-enabled
       - ./config/apache/ssl:/etc/ssl/lamp
       - ./var/log/apache:/var/log/apache2
       - ./var/log/php:/var/log/php
@@ -34,9 +49,11 @@ services:
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
     networks:
       - lamp
+    depends_on:
+      - lamp.init
   # How to start docker with Redis (only when you need it)
-  # start command: COMPOSE_PROFILES=redis-enabled docker-compose up -d
-  # stop command: COMPOSE_PROFILES=redis-enabled docker-compose down
+  # start command: COMPOSE_PROFILES=with-redis docker-compose up -d
+  # stop command: COMPOSE_PROFILES=with-redis docker-compose down
   lamp.redis:
     container_name: redis
     image: redis
@@ -45,7 +62,7 @@ services:
     depends_on:
       - lamp.db
     profiles:
-      - redis-enabled
+      - with-redis
     networks:
       - lamp
   lamp.pma:
@@ -63,7 +80,7 @@ services:
     depends_on:
       - lamp.db
     profiles:
-      - pma-enabled
+      - with-pma
     networks:
       - lamp
 networks:
