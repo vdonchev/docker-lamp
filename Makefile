@@ -17,9 +17,14 @@ up-pma: check-env
 up-redis: check-env
 	@COMPOSE_PROFILES=with-redis docker compose up -d lamp.web lamp.db lamp.redis
 
-# Starts all containers (phpMyAdmin + Redis)
+# Starts containers with MailHog
+up-mailhog: check-env
+	@COMPOSE_PROFILES=with-mailhog docker compose up -d lamp.web lamp.db lamp.mailhog
+
+
+# Starts all containers (phpMyAdmin + Redis + MailHog)
 up-all: check-env
-	@COMPOSE_PROFILES=with-redis,with-pma docker compose up -d lamp.web lamp.db lamp.redis lamp.pma
+	@COMPOSE_PROFILES=with-redis,with-pma,with-mailhog docker compose up -d lamp.web lamp.db lamp.redis lamp.pma lamp.mailhog
 
 # Builds all containers without cache
 build:
@@ -37,7 +42,7 @@ rebuild:
 
 # Completely stops and removes all containers, volumes, and orphans
 down:
-	@COMPOSE_PROFILES=with-redis,with-pma docker compose down --volumes --remove-orphans
+	@COMPOSE_PROFILES=with-redis,with-pma,with-mailhog docker compose down --volumes --remove-orphans
 
 # Follows Apache logs
 logs:

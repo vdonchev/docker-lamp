@@ -66,6 +66,16 @@ services:
       - with-pma
     networks:
       - lamp
+  lamp.mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"     # Web UI
+      - "1025:1025"     # SMTP
+    profiles:
+      - with-mailhog
+    networks:
+      - lamp
 networks:
   lamp:
     driver: bridge
