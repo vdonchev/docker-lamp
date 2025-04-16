@@ -1,61 +1,95 @@
-.PHONY: up up-pma up-redis up-all build restart rebuild down logs cert shell fix-perms
+.PHONY: check-env status up up-pma up-redis up-mailhog up-all build restart restart-all down logs \
+		logs-php logs-sql logs-pma logs-mailhog logs-redis logs-all clean-log mysql-cli cert shell \
+		shell-db fix-perms help
+
+.DEFAULT_GOAL := help
+
+PHP_VERSION ?= php84
+MYSQL_VERSION ?= mysql8
+ROOT_PASSWORD ?= root
+ALL_PROFILES := with-redis,with-pma,with-mailhog
 
 # Internal target: checks if .env exists
 check-env:
 	@if [ ! -f .env ]; then \
 		echo "WARNING: .env file is missing. Default values will be used."; \
 	fi
-# Starts main containers (lamp.web + lamp.db)
-up: check-env
+
+status: ## Shows status of all containers
+	docker compose ps
+
+up: check-env ## Starts Apache (lamp.web) and MySQL (lamp.db)
 	@docker compose up -d lamp.web lamp.db
 
-# Starts containers with phpMyAdmin
-up-pma: check-env
+up-pma: check-env ## Starts lamp.web, lamp.db, and phpMyAdmin (lamp.pma)
 	@COMPOSE_PROFILES=with-pma docker compose up -d lamp.web lamp.db lamp.pma
 
-# Starts containers with Redis
-up-redis: check-env
+up-redis: check-env ## Starts lamp.web, lamp.db, and Redis (lamp.redis)
 	@COMPOSE_PROFILES=with-redis docker compose up -d lamp.web lamp.db lamp.redis
 
-# Starts containers with MailHog
-up-mailhog: check-env
+up-mailhog: check-env ## Starts lamp.web, lamp.db, and MailHog (lamp.mailhog)
 	@COMPOSE_PROFILES=with-mailhog docker compose up -d lamp.web lamp.db lamp.mailhog
 
-
-# Starts all containers (phpMyAdmin + Redis + MailHog)
-up-all: check-env
+up-all: check-env ## Starts all services: Apache, MySQL, phpMyAdmin, Redis, MailHog
 	@COMPOSE_PROFILES=with-redis,with-pma,with-mailhog docker compose up -d lamp.web lamp.db lamp.redis lamp.pma lamp.mailhog
 
-# Builds all containers without cache
-build:
+build: ## Builds all containers without cache
 	@docker compose build --no-cache
 
-# Stops and starts the current active config
-restart:
+restart: ## Stops and restarts core containers (Apache + MySQL)
 	@$(MAKE) down
 	@$(MAKE) up
 
-# Stops all containers and starts fresh (without volumes)
-rebuild:
-	@docker compose down --volumes
-	@$(MAKE) up
+restart-all: ## Stops and restarts all containers including extras (pma, redis, mailhog)
+	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose down --volumes --remove-orphans
+	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose up -d lamp.web lamp.db lamp.pma lamp.redis lamp.mailhog
 
-# Completely stops and removes all containers, volumes, and orphans
-down:
-	@COMPOSE_PROFILES=with-redis,with-pma,with-mailhog docker compose down --volumes --remove-orphans
+down: ## Stops and removes all containers, volumes, and orphans
+	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose down --volumes --remove-orphans
 
-# Follows Apache logs
-logs:
-	docker logs -f apache-${PHP_VERSION}
+logs: ## Tails Apache logs
+	docker logs -f apache-$(PHP_VERSION)
 
-# Generates a multidomain self-signed SSL certificate
-cert:
+logs-php: ## Tails only PHP-related entries from Apache error log
+	tail -f var/log/apache/error.log | grep PHP
+
+logs-sql: ## Tails MySQL logs
+	docker logs -f $(MYSQL_VERSION)
+
+logs-pma: ## Tails phpMyAdmin logs
+	docker logs -f pma
+
+logs-mailhog: ## Tails MailHog logs
+	docker logs -f mailhog
+
+logs-redis: ## Tails Redis logs
+	docker logs -f redis
+
+logs-all: ## Tails logs for all containers (live view)
+	docker compose logs -f --tail=50
+
+clean-log: ## Fully deletes and recreates ./var/log directory
+	@sudo rm -rf ./var/log
+	@mkdir -p ./var/log
+	@echo "./var/log has been deleted and recreated."
+
+mysql-cli: ## Opens MySQL CLI inside the database container
+	docker exec -it $(MYSQL_VERSION) mysql -u root -p$(ROOT_PASSWORD)
+
+cert: ## Generates a local multi-domain self-signed SSL certificate
 	./scripts/generate-multidomain-ssl.sh
 
-# Opens a bash shell inside the Apache container
-shell:
-	docker exec -it apache-${PHP_VERSION} bash
+shell: ## Opens a bash shell inside the Apache container
+	docker exec -it apache-$(PHP_VERSION) bash
 
-# Fixes executable permissions on shell scripts
-fix-perms:
+shell-db: ## Opens a bash shell inside the MySQL container
+	docker exec -it $(MYSQL_VERSION) bash
+
+fix-perms: ## Fixes executable permissions on scripts
 	chmod +x entrypoint.sh scripts/*.sh
+
+help: ## Displays this help message
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "Available targets:"
+	@grep -E '^[a-zA-Z0-9_.-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'

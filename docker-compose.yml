@@ -14,7 +14,6 @@ services:
       - ./config/apache/vhosts/generated:/etc/apache2/sites-enabled
       - ./config/apache/ssl:/etc/ssl/lamp
       - ./var/log/apache:/var/log/apache2
-      - ./var/log/php:/var/log/php
       - ./scripts:/scripts
       - ./config:/config
       - ./entrypoint.sh:/entrypoint.sh
