@@ -12,8 +12,8 @@ VHOSTS_DIR="$BASE_DIR/config/apache/vhosts"
 SSL_DIR="$BASE_DIR/config/apache/ssl"
 OUTPUT_FILE="$VHOSTS_DIR/generated/httpd.conf"
 
-LIST_MAIN="$PROJECTS_DIR/list.txt"
-LIST_LOCAL="$PROJECTS_DIR/list.local.txt"
+LIST_MAIN="$PROJECTS_DIR/sites.list"
+LIST_LOCAL="$PROJECTS_DIR/sites.local.list"
 
 DEFAULT_VHOSTS="$VHOSTS_DIR/httpd.default.conf"
 LOCAL_VHOSTS="$VHOSTS_DIR/httpd.local.conf"
