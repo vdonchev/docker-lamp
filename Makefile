@@ -1,19 +1,24 @@
 .PHONY: up up-pma up-redis up-all build restart rebuild down logs cert shell fix-perms
 
+# Internal target: checks if .env exists
+check-env:
+	@if [ ! -f .env ]; then \
+		echo "WARNING: .env file is missing. Default values will be used."; \
+	fi
 # Starts main containers (lamp.web + lamp.db)
-up:
+up: check-env
 	@docker compose up -d lamp.web lamp.db
 
 # Starts containers with phpMyAdmin
-up-pma:
+up-pma: check-env
 	@COMPOSE_PROFILES=with-pma docker compose up -d lamp.web lamp.db lamp.pma
 
 # Starts containers with Redis
-up-redis:
+up-redis: check-env
 	@COMPOSE_PROFILES=with-redis docker compose up -d lamp.web lamp.db lamp.redis
 
 # Starts all containers (phpMyAdmin + Redis)
-up-all:
+up-all: check-env
 	@COMPOSE_PROFILES=with-redis,with-pma docker compose up -d lamp.web lamp.db lamp.redis lamp.pma
 
 # Builds all containers without cache
