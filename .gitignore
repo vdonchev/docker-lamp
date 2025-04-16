@@ -17,4 +17,4 @@
 !/config/apache/vhosts/httpd.default.conf
 
 /config/projects/*
-!/config/projects/list.txt
+!/config/projects/sites.list
