@@ -3,7 +3,7 @@
 .env
 
 /app/*
-!/app/.gitkeep
+!/app/index.php
 
 /var/log/*
 !/var/log/.gitkeep
