@@ -13,7 +13,7 @@
 /config/apache/ssl/*
 !/config/apache/ssl/.gitkeep
 
-/config/php/*
+/config/php/conf.d/*
 !/config/php/conf.d/php.ini
 
 /config/apache/vhosts/*
