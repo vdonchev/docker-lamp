@@ -1,4 +1,4 @@
-FROM php:8.0-apache
+FROM php:8.1-apache
 
 # Install required dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -26,11 +26,12 @@ RUN docker-php-ext-install curl \
 RUN pecl install redis && docker-php-ext-enable redis
 
 # Install xdebug php extension
-RUN pecl install xdebug-3.4.0 && docker-php-ext-enable xdebug && mkdir /var/log/xdebug
+RUN pecl install xdebug-3.4.2 \
+ && docker-php-ext-enable xdebug \
+ && mkdir -p /var/log/xdebug
 
 # Enable additional extensions
 RUN a2enmod ssl rewrite headers proxy proxy_http
 
-# Add user
-#RUN useradd -u 1001 appuser
-#USER appuser
+# Set FQDN
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf

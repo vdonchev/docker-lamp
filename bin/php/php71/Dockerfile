@@ -1,0 +1,48 @@
+FROM php:7.1-apache
+
+# Patch outdated and removed Debian mirrors
+RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list \
+ && sed -i 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list \
+ && sed -i '/stretch-updates/d' /etc/apt/sources.list \
+ && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until \
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libzip-dev \
+    libicu-dev \
+    apt-utils build-essential \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libmcrypt-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-configure gd \
+    --with-freetype-dir=/usr/include/ \
+    --with-jpeg-dir=/usr/include/ \
+ && docker-php-ext-install curl \
+    xml \
+    zip \
+    mysqli \
+    pdo_mysql \
+    intl \
+    mbstring \
+    gd \
+    mcrypt
+
+# Install Redis
+RUN pecl install redis-4.3.0 \
+ && docker-php-ext-enable redis
+
+# Install Xdebug
+RUN pecl install xdebug-2.9.8 \
+ && docker-php-ext-enable xdebug \
+ && mkdir -p /var/log/xdebug
+
+# Enable Apache modules
+RUN a2enmod ssl rewrite headers proxy proxy_http
+
+# Set FQDN
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf

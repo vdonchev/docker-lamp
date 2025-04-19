@@ -2,7 +2,7 @@ services:
   lamp.web:
     container_name: apache-${PHP_VERSION:-php84}
     build:
-      context: ./bin/${PHP_VERSION:-php84}
+      context: ./bin/php/${PHP_VERSION:-php84}
     ports:
       - ${HTTP_PORT:-80}:80
       - ${HTTPS_PORT:-443}:443
@@ -10,7 +10,7 @@ services:
     volumes:
       - ${WEB_HOST:-./app}:/var/www
       - ${WEB_STORAGE:-./app}:/home/storage
-      - ./config/php/php.ini:/usr/local/etc/php/php.ini
+      - ./config/php/conf.d:/usr/local/etc/php/conf.d
       - ./config/apache/vhosts/generated:/etc/apache2/sites-enabled
       - ./config/apache/ssl:/etc/ssl/lamp
       - ./var/log/apache:/var/log/apache2
@@ -23,14 +23,14 @@ services:
     networks:
       - lamp
   lamp.db:
-    container_name: ${MYSQL_VERSION:-mysql8}
+    container_name: ${SQL_VERSION:-mysql8}
     build:
-      context: ./bin/${MYSQL_VERSION:-mysql8}
+      context: ./bin/sql/${SQL_VERSION:-mysql8}
     ports:
-      - ${MYSQL_PORT:-3306}:3306
+      - ${SQL_PORT:-3306}:3306
     restart: always
     volumes:
-      - ${DB_HOST:-./var/mysql}:/var/lib/mysql
+      - ${DB_HOST:-./var}/db/${SQL_VERSION:-mysql8}:/var/lib/mysql
       - ./config/mysql/my.cnf:/etc/mysql/conf.d/custom-configs.cnf
     environment:
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD:-root}
@@ -54,7 +54,7 @@ services:
     ports:
       - ${PMA_PORT:-8080}:80
     environment:
-      PMA_HOST: ${MYSQL_VERSION:-mysql8}
+      PMA_HOST: ${SQL_VERSION:-mysql8}
       PMA_PORT: 3306
       PMA_USER: root
       PMA_PASSWORD: ${ROOT_PASSWORD:-root}

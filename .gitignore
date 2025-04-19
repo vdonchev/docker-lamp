@@ -8,10 +8,13 @@
 /var/log/*
 !/var/log/.gitkeep
 
-/var/mysql/*
+/var/db/*
 
 /config/apache/ssl/*
 !/config/apache/ssl/.gitkeep
+
+/config/php/*
+!/config/php/conf.d/php.ini
 
 /config/apache/vhosts/*
 !/config/apache/vhosts/httpd.default.conf
