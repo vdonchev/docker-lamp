@@ -4,12 +4,20 @@ set -e  # Stop on error
 
 echo "[init] Starting entrypoint logic..."
 
+if [ -n "$PHP_VERSION" ]; then
+  echo "[init] Detected PHP_VERSION=$PHP_VERSION from .env"
+else
+  echo "[init] WARNING: PHP_VERSION not set — .env may be missing or incomplete"
+fi
+
+echo "[init] Starting entrypoint logic..."
+
 # Optional: load local PHP config if it exists
 LOCAL_INI="/config/php/conf.d/php.local.ini"
 TARGET_INI="/usr/local/etc/php/conf.d/999-local.ini"
 
 if [ -f "$LOCAL_INI" ]; then
-    echo "Loading php.local.ini..."
+    echo "[init] Loading php.local.ini..."
     cp "$LOCAL_INI" "$TARGET_INI"
 fi
 
