@@ -59,7 +59,7 @@ services:
     ports:
       - ${PMA_PORT:-8080}:80
     environment:
-      PMA_HOST: ${SQL_VERSION:-mysql8}
+      PMA_HOST: ${SQL_VERSION:-mysql84}
       PMA_PORT: 3306
       PMA_USER: root
       PMA_PASSWORD: ${SQL_ROOT_PWD:-root}

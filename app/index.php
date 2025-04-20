@@ -108,7 +108,7 @@ if(file_exists('/config/projects/sites.list')) {
         <h2>Local Projects</h2>
         <ul>
             <?php foreach ($projectList as $line):
-                if (str_contains($line, ',')) {
+                if (str_contains($line, ',') && !str_starts_with($line, '#')) {
                     [$domain, $path] = explode(',', $line, 2);
                     echo "<li><a target='_blank' href=\"http://$domain\">$domain</a> → <code>$path</code></li>";
                 }
