@@ -17,7 +17,9 @@ RUN docker-php-ext-install curl \
     pdo_mysql \
     intl \
     mbstring \
-    gd
+    gd \
+    bcmath \
+    exif
 
 # Install Redis
 RUN pecl install redis-5.3.7 && docker-php-ext-enable redis

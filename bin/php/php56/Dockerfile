@@ -35,6 +35,8 @@ RUN docker-php-ext-install \
     intl \
     mbstring \
     gd \
+    bcmath \
+    exif \
     mcrypt
 
 # Install Redis (final compatible version for PHP 5.6)

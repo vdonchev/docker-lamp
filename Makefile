@@ -5,8 +5,8 @@
 .DEFAULT_GOAL := help
 
 PHP_VERSION ?= php84
-SQL_VERSION ?= mysql8
-ROOT_PASSWORD ?= root
+SQL_VERSION ?= mysql84
+SQL_ROOT_PWD ?= root
 ALL_PROFILES := with-redis,with-pma,with-mailhog
 
 # Internal target: checks if .env exists
@@ -85,7 +85,7 @@ clean-log: ## Fully deletes and recreates ./var/log directory
 	@echo "./var/log has been deleted and recreated."
 
 mysql-cli: ## Opens MySQL CLI inside the database container
-	docker exec -it $(SQL_VERSION) mysql -u root -p$(ROOT_PASSWORD)
+	docker exec -it $(SQL_VERSION) mysql -u root -p$(SQL_ROOT_PWD)
 
 cert: ## Generates a local multi-domain self-signed SSL certificate
 	./scripts/generate-multidomain-ssl.sh

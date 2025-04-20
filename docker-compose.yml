@@ -24,17 +24,18 @@ services:
     networks:
       - lamp
   lamp.db:
-    container_name: ${SQL_VERSION:-mysql8}
+    container_name: ${SQL_VERSION:-mysql84}
     build:
-      context: ./bin/sql/${SQL_VERSION:-mysql8}
+      context: .
+      dockerfile: bin/sql/${SQL_VERSION:-mysql84}/Dockerfile
     ports:
       - ${SQL_PORT:-3306}:3306
     restart: always
     volumes:
-      - ${DB_HOST:-./var}/db/${SQL_VERSION:-mysql8}:/var/lib/mysql
+      - ${SQL_HOST:-./var}/db/${SQL_VERSION:-mysql84}:/var/lib/mysql
       - ./config/mysql/my.cnf:/etc/mysql/conf.d/custom-configs.cnf
     environment:
-      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD:-root}
+      MYSQL_ROOT_PASSWORD: ${SQL_ROOT_PWD:-root}
     networks:
       - lamp
   lamp.redis:
@@ -58,8 +59,8 @@ services:
       PMA_HOST: ${SQL_VERSION:-mysql8}
       PMA_PORT: 3306
       PMA_USER: root
-      PMA_PASSWORD: ${ROOT_PASSWORD:-root}
-      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD:-root}
+      PMA_PASSWORD: ${SQL_ROOT_PWD:-root}
+      MYSQL_ROOT_PASSWORD: ${SQL_ROOT_PWD:-root}
     depends_on:
       - lamp.db
     profiles:

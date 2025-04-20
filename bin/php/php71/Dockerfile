@@ -30,6 +30,8 @@ RUN docker-php-ext-configure gd \
     intl \
     mbstring \
     gd \
+    bcmath \
+    exif \
     mcrypt
 
 # Install Redis

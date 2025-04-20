@@ -17,7 +17,9 @@ RUN docker-php-ext-install curl \
     pdo_mysql \
     intl \
     mbstring \
-    gd
+    gd \
+    bcmath \
+    exif
 
 # Install xdebug
 RUN pecl install xdebug-3.1.6 \
