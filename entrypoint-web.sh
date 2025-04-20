@@ -5,9 +5,10 @@ set -e  # Stop on error
 echo "[init] Starting entrypoint logic..."
 
 if [ -n "$PHP_VERSION" ]; then
-  echo "[init] Detected PHP_VERSION=$PHP_VERSION from .env"
+  echo "[init] .env file found!"
 else
-  echo "[init] WARNING: PHP_VERSION not set — .env may be missing or incomplete"
+  echo "[init] WARNING: .env file not found"
+  echo "[init] Using default values defined in docker-compose.yml"
 fi
 
 echo "[init] Starting entrypoint logic..."
