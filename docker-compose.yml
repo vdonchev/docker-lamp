@@ -2,7 +2,8 @@ services:
   lamp.web:
     container_name: apache-${PHP_VERSION:-php84}
     build:
-      context: ./bin/php/${PHP_VERSION:-php84}
+      context: .
+      dockerfile: bin/php/${PHP_VERSION:-php84}/Dockerfile
     ports:
       - ${HTTP_PORT:-80}:80
       - ${HTTPS_PORT:-443}:443
@@ -10,7 +11,7 @@ services:
     volumes:
       - ${WEB_HOST:-./app}:/var/www
       - ${WEB_STORAGE:-./app}:/home/storage
-      - ./config/php/conf.d:/usr/local/etc/php/conf.d
+      - ./config/php/conf.d/php.ini:/usr/local/etc/php/conf.d/001-php.ini
       - ./config/apache/vhosts/generated:/etc/apache2/sites-enabled
       - ./config/apache/ssl:/etc/ssl/lamp
       - ./var/log/apache:/var/log/apache2

@@ -3,8 +3,8 @@ FROM php:7.1-apache
 # Patch outdated and removed Debian mirrors
 RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list \
  && sed -i 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list \
- && sed -i '/stretch-updates/d' /etc/apt/sources.list \
- && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until \
+ && sed -i '/updates/d' /etc/apt/sources.list \
+ && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
@@ -40,6 +40,16 @@ RUN pecl install redis-4.3.0 \
 RUN pecl install xdebug-2.9.8 \
  && docker-php-ext-enable xdebug \
  && mkdir -p /var/log/xdebug
+
+# Copy Xdebug configs
+COPY config/php/xdebug/xdebug.ini /tmp/xdebug.ini
+COPY config/php/xdebug/xdebug.legacy.ini /tmp/xdebug.legacy.ini
+
+# Dynamically choose which to load based on PHP version
+RUN php -r "exit(version_compare(PHP_VERSION, '7.2', '<') ? 0 : 1);" \
+      && cp /tmp/xdebug.legacy.ini /usr/local/etc/php/conf.d/100-xdebug.ini \
+      || cp /tmp/xdebug.ini /usr/local/etc/php/conf.d/100-xdebug.ini \
+      && rm /tmp/xdebug.*
 
 # Enable Apache modules
 RUN a2enmod ssl rewrite headers proxy proxy_http

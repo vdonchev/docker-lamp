@@ -16,6 +16,15 @@ fi
 
 echo "[init] Starting entrypoint logic..."
 
+# Optional: load local PHP config if it exists
+LOCAL_INI="/config/php/conf.d/php.local.ini"
+TARGET_INI="/usr/local/etc/php/conf.d/999-local.ini"
+
+if [ -f "$LOCAL_INI" ]; then
+    echo "Loading php.local.ini..."
+    cp "$LOCAL_INI" "$TARGET_INI"
+fi
+
 if [ -f /scripts/generate-vhosts.sh ]; then
     echo "[init] Running vhost generation..."
     chmod +x /scripts/generate-vhosts.sh
