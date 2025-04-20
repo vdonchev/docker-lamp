@@ -2,18 +2,6 @@
 
 set -e  # Stop on error
 
-# Path to the environment file
-ENV_FILE="/config/.env"
-
-# Check if the .env file exists
-if [ ! -f "$ENV_FILE" ]; then
-    echo "[init] WARNING: .env file not found at $ENV_FILE"
-    echo "[init] Using default values defined in docker-compose.yml"
-    echo ""
-else
-    echo "[init] .env file successfully loaded from $ENV_FILE"
-fi
-
 echo "[init] Starting entrypoint logic..."
 
 # Optional: load local PHP config if it exists
