@@ -35,4 +35,4 @@ fi
 chmod -R a+rwX /var/www
 
 echo "[init] Starting Apache..."
-exec apache2-foreground
+#exec apache2-foreground
