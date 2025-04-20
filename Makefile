@@ -97,7 +97,7 @@ shell-sql: ## Opens a bash shell inside the MySQL container
 	docker exec -it $(SQL_VERSION) bash
 
 fix-perms: ## Fixes executable permissions on scripts
-	chmod +x entrypoint-web.sh scripts/*.sh
+	chmod +x scripts/**/*.sh
 
 help: ## Displays this help message
 	@echo "Usage: make [command]"

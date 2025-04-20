@@ -17,7 +17,7 @@ services:
       - ./var/log/apache:/var/log/apache2
       - ./scripts:/scripts
       - ./config:/config
-      - ./entrypoint-web.sh:/entrypoint.sh
+      - ./scripts/entrypoint/web.sh:/entrypoint.sh
     entrypoint: [ "/bin/bash", "-c", "/entrypoint.sh && exec apache2-foreground" ]
     depends_on:
       - lamp.db
@@ -35,7 +35,7 @@ services:
       - ${SQL_HOST:-./var}/db/${SQL_VERSION:-mysql84}:/var/lib/mysql
       - ./config/sql/my.cnf:/etc/mysql/conf.d/custom-configs.cnf
       - ./config/sql:/config/sql:ro
-      - ./entrypoint-sql.sh:/docker-entrypoint-initdb.d/00-entrypoint.sh
+      - ./scripts/entrypoint/sql.sh:/docker-entrypoint-initdb.d/00-entrypoint.sh
     environment:
       MYSQL_ROOT_PASSWORD: ${SQL_ROOT_PWD:-root}
     entrypoint: [ "/bin/bash", "-c", "/docker-entrypoint-initdb.d/00-entrypoint.sh && exec docker-entrypoint.sh mysqld" ]
