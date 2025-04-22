@@ -2,7 +2,7 @@
 set -e
 
 check() {
-  printf "✔ %s\\n" "$1"
+  printf "[OK] %s\n" "$1"
 }
 
 echo "🔧 Starting environment initialization..."
@@ -11,21 +11,40 @@ echo "🔧 Starting environment initialization..."
 if [ -f docker-compose.yml ]; then
   check "docker-compose.yml found"
 else
-  echo "✖ docker-compose.yml not found. Initialization aborted."
+  echo "docker-compose.yml not found. Initialization aborted."
   exit 1
 fi
 
-# Check for .env file
-if [ ! -f .env ]; then
-  if [ -f example.env ]; then
-    cp example.env .env
-    check ".env created from example.env"
+# Generate .env file with absolute paths
+ENV_FILE=".env"
+PWD_ABS="$(pwd)"
+
+if [ -f "$ENV_FILE" ]; then
+  read -p ".env already exists. Overwrite it? [y/N]: " confirm
+  if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+    check "skipped .env generation"
   else
-    echo "✖ .env and example.env missing"
-    exit 1
+    generate_env=true
   fi
 else
-  check ".env already exists"
+  generate_env=true
+fi
+
+if [ "$generate_env" = true ]; then
+  cat > "$ENV_FILE" <<EOF
+PHP_VERSION=php84
+SQL_VERSION=mysql84
+SQL_PORT=3306
+SQL_ROOT_PWD=root
+SQL_HOST=${PWD_ABS}/var/db
+WEB_HOST=${PWD_ABS}/app
+WEB_STORAGE=${PWD_ABS}/var/temp
+HTTP_PORT=80
+HTTPS_PORT=443
+PMA_PORT=8080
+EOF
+
+  check ".env file generated with absolute paths"
 fi
 
 # Fix executable permissions
@@ -64,4 +83,4 @@ else
   check "SSL certificate already exists"
 fi
 
-echo "Initialization complete. You can now run: docker compose up"
+echo "Initialization complete!"
