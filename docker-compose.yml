@@ -1,6 +1,6 @@
 services:
   lamp.web:
-    container_name: apache-${PHP_VERSION:-php84}
+    container_name: web
     build:
       context: .
       dockerfile: bin/php/${PHP_VERSION:-php84}/Dockerfile
@@ -9,8 +9,7 @@ services:
       - ${HTTPS_PORT:-443}:443
     restart: always
     volumes:
-      - ${WEB_HOST:-./app}:/var/www
-      - ${WEB_STORAGE:-./app}:/home/storage
+      - ${WEB_ROOT:-./app}:/var/www
       - ./config/php/conf.d/php.ini:/usr/local/etc/php/conf.d/001-php.ini
       - ./config/apache/vhosts/generated:/etc/apache2/sites-enabled
       - ./config/apache/ssl:/etc/ssl/lamp
@@ -24,7 +23,7 @@ services:
     networks:
       - lamp
   lamp.db:
-    container_name: ${SQL_VERSION:-mysql84}
+    container_name: db
     build:
       context: .
       dockerfile: bin/sql/${SQL_VERSION:-mysql84}/Dockerfile
@@ -32,7 +31,7 @@ services:
       - ${SQL_PORT:-3306}:3306
     restart: always
     volumes:
-      - ${SQL_HOST:-./var}/db/${SQL_VERSION:-mysql84}:/var/lib/mysql
+      - ${SQL_DATA_PATH:-./var}/db/${SQL_VERSION:-mysql84}:/var/lib/mysql
       - ./config/sql/my.cnf:/etc/mysql/conf.d/custom-configs.cnf
       - ./config/sql:/config/sql:ro
       - ./scripts/entrypoint/sql.sh:/docker-entrypoint-initdb.d/00-entrypoint.sh

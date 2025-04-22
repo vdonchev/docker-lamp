@@ -36,9 +36,8 @@ PHP_VERSION=php84
 SQL_VERSION=mysql84
 SQL_PORT=3306
 SQL_ROOT_PWD=root
-SQL_HOST=${PWD_ABS}/var/db
-WEB_HOST=${PWD_ABS}/app
-WEB_STORAGE=${PWD_ABS}/var/temp
+SQL_DATA_PATH=${PWD_ABS}/var/db
+WEB_ROOT=${PWD_ABS}/app
 HTTP_PORT=80
 HTTPS_PORT=443
 PMA_PORT=8080
@@ -57,10 +56,10 @@ check "required directories created (or already exist)"
 
 # Create missing config files
 declare -A files_to_create=(
-  ["config/apache/vhosts/https.local.conf"]="# Local HTTPS Apache config (auto-created)"
-  ["config/php/conf.d/php.local.ini"]="; Local PHP overrides (auto-created)"
+  ["config/apache/vhosts/httpd.local.conf"]="# Local Apache Vhosts config (auto-created)"
+  ["config/php/conf.d/php.local.ini"]="; Local PHP config (auto-created)"
   ["config/projects/sites.local.list"]="# List of project domains (auto-created)"
-  ["config/sql/my.local.cnf"]="# Local MySQL config (auto-created)"
+  ["config/sql/my.local.cnf"]="# Local SQL config (auto-created)"
 )
 
 for file in "${!files_to_create[@]}"; do
