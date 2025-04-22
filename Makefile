@@ -1,10 +1,10 @@
-.PHONY: check-env status init up up-pma up-redis up-mailhog up-all build build-no-cache switch-php switch-db \
-	restart restart-all down logs logs-web logs-php logs-db logs-pma logs-mailhog logs-redis clean-log \
+.PHONY: check-env status init up up-pma up-redis up-mailpit up-all build build-no-cache switch-php switch-db \
+	restart restart-all down logs logs-web logs-php logs-db logs-pma logs-mailpit logs-redis clean-log \
 	sql-cli cert shell shell-sql fix-perms help
 
 .DEFAULT_GOAL := help
 
-ALL_PROFILES := with-redis,with-pma,with-mailhog
+ALL_PROFILES := with-redis,with-pma,with-mailpit
 
 # Internal target: checks if .env exists
 check-env:
@@ -28,11 +28,11 @@ up-pma: check-env ## Starts phpMyAdmin (pma)
 up-redis: check-env ## Starts Redis (redis)
 	@COMPOSE_PROFILES=with-redis docker compose up -d lamp.redis
 
-up-mailhog: check-env ## Starts MailHog (mailhog)
-	@COMPOSE_PROFILES=with-mailhog docker compose up -d lamp.mailhog
+up-mailpit: check-env ## Starts Mailpit (mailpit)
+	@COMPOSE_PROFILES=with-mailpit docker compose up -d lamp.mailpit
 
-up-all: check-env ## Starts all services: Apache (web), SQL (db), phpMyAdmin (pma), Redis (redis), MailHog (mailhog)
-	@COMPOSE_PROFILES=with-redis,with-pma,with-mailhog docker compose up -d lamp.web lamp.db lamp.redis lamp.pma lamp.mailhog
+up-all: check-env ## Starts all services: Apache (web), SQL (db), phpMyAdmin (pma), Redis (redis), Mailpit (mailpit)
+	@COMPOSE_PROFILES=with-redis,with-pma,with-mailpit docker compose up -d lamp.web lamp.db lamp.redis lamp.pma lamp.mailpit
 
 build: ## Builds all containers using cache
 	@docker compose build
@@ -54,7 +54,7 @@ restart: ## Stops and restarts core containers Apache (web) and SQL (db)
 
 restart-all: ## Stops and restarts all containers
 	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose down --volumes --remove-orphans
-	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose up -d lamp.web lamp.db lamp.pma lamp.redis lamp.mailhog
+	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose up -d lamp.web lamp.db lamp.pma lamp.redis lamp.mailpit
 
 down: ## Stops and removes all containers, volumes, and orphans
 	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose down --volumes --remove-orphans
@@ -74,8 +74,8 @@ logs-db: ## Tails SQL (db) logs
 logs-pma: ## Tails phpMyAdmin (pma) logs
 	docker logs -f pma
 
-logs-mailhog: ## Tails MailHog (mailhog) logs
-	docker logs -f mailhog
+logs-mailpit: ## Tails Mailpit (mailpit) logs
+	docker logs -f mailpit
 
 logs-redis: ## Tails Redis (redis) logs
 	docker logs -f redis

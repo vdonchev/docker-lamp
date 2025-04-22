@@ -101,7 +101,7 @@ if(file_exists('/config/projects/sites.list')) {
     <h2>Tools</h2>
     <ul>
         <li><a href="http://localhost:8080" target="_blank">phpMyAdmin</a> (if running)</li>
-        <li><a href="http://localhost:8025" target="_blank">MailHog</a> (if running)</li>
+        <li><a href="http://localhost:8025" target="_blank">Mailpit</a> (if running)</li>
     </ul>
 
     <?php if (!empty($projectList)): ?>

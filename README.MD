@@ -1,7 +1,7 @@
 # Docker LAMP Stack
 
 A modern, flexible, lightweight, and developer-friendly LAMP (Linux, Apache, MySQL/MariaDB, PHP) stack designed for local development.  
-Supports multiple PHP and SQL versions, virtual hosts with HTTPS, and optional tools like phpMyAdmin, Redis, and MailHog.
+Supports multiple PHP and SQL versions, virtual hosts with HTTPS, and optional tools like phpMyAdmin, Redis, and Mailpit.
 
 Easily configurable via `.env`, with clean structure and no bloat.
           
@@ -14,7 +14,7 @@ Easily configurable via `.env`, with clean structure and no bloat.
   Set project paths, ports, service versions, and credentials in one place — no need to touch Docker files.
 
 - **Modular and profile-based**  
-  Optional services like phpMyAdmin, Redis, and MailHog can be toggled on or off using Docker Compose profiles.
+  Optional services like phpMyAdmin, Redis, and Mailpit can be toggled on or off using Docker Compose profiles.
 
 - **Apache with SSL and virtual host generator**  
   Ships with auto-generated self-signed certificates and dynamic Apache virtual host support.
@@ -41,3 +41,36 @@ Optional but recommended:
 - **GNU Make** – to use the Makefile shortcuts (optional but makes life easier)
 
 This stack is built and tested on Linux and WSL2. It should work on macOS and Docker Desktop for Windows, assuming paths and permissions are correctly handled.
+
+
+## Installation
+
+Like it simple? Sure, we do too. Pick the setup style that fits your workflow.
+
+### Manual setup
+
+```bash
+git clone https://github.com/vdonchev/docker-lamp.git docker-lamp && cd docker-lamp
+cp example.env .env
+# Edit the .env file to match your local project path, PHP/SQL versions, ports, etc.
+docker compose up -d
+```
+
+### Using the bash init script
+
+```bash
+git clone https://github.com/vdonchev/docker-lamp.git docker-lamp && cd docker-lamp
+scripts/.init.sh
+# Then edit the .env file if needed
+docker compose up -d
+```
+
+### If GNU Make is available
+
+```bash
+git clone https://github.com/vdonchev/docker-lamp.git docker-lamp && cd docker-lamp
+make init
+make up
+```
+
+All paths lead to the same place — a ready-to-code local LAMP stack with just a few commands.

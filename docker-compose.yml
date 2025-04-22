@@ -55,7 +55,7 @@ services:
       - lamp
   lamp.pma:
     container_name: pma
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin
     restart: always
     ports:
       - ${PMA_PORT:-8080}:80
@@ -71,14 +71,14 @@ services:
       - with-pma
     networks:
       - lamp
-  lamp.mailhog:
-    container_name: mailhog
-    image: mailhog/mailhog
+  lamp.mailpit:
+    container_name: mailpit
+    image: axllent/mailpit
     ports:
       - "8025:8025"     # Web UI
       - "1025:1025"     # SMTP
     profiles:
-      - with-mailhog
+      - with-mailpit
     networks:
       - lamp
 volumes:
