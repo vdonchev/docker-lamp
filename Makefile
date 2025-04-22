@@ -1,4 +1,4 @@
-.PHONY: check-env status up up-pma up-redis up-mailhog up-all build build-no-cache switch-php switch-db \
+.PHONY: check-env status init up up-pma up-redis up-mailhog up-all build build-no-cache switch-php switch-db \
 	restart restart-all down logs logs-web logs-php logs-db logs-pma logs-mailhog logs-redis clean-log \
 	sql-cli cert shell shell-sql fix-perms help
 
@@ -15,17 +15,21 @@ check-env:
 status: ## Shows status of all containers
 	docker compose ps
 
+init: ## Runs the project initialization script
+	@test -x scripts/.init.sh || chmod +x scripts/.init.sh
+	@scripts/.init.sh
+
 up: check-env ## Starts Apache (web) and SQL (db)
 	@docker compose up -d lamp.web lamp.db
 
-up-pma: check-env ## Starts Apache (web), SQL (db) and phpMyAdmin (pma)
-	@COMPOSE_PROFILES=with-pma docker compose up -d lamp.web lamp.db lamp.pma
+up-pma: check-env ## Starts phpMyAdmin (pma)
+	@COMPOSE_PROFILES=with-pma docker compose up -d lamp.pma
 
-up-redis: check-env ## Starts Apache (web), SQL (db) and Redis (redis)
-	@COMPOSE_PROFILES=with-redis docker compose up -d lamp.web lamp.db lamp.redis
+up-redis: check-env ## Starts Redis (redis)
+	@COMPOSE_PROFILES=with-redis docker compose up -d lamp.redis
 
-up-mailhog: check-env ## Starts Apache (web), SQL (db) and MailHog (mailhog)
-	@COMPOSE_PROFILES=with-mailhog docker compose up -d lamp.web lamp.db lamp.mailhog
+up-mailhog: check-env ## Starts MailHog (mailhog)
+	@COMPOSE_PROFILES=with-mailhog docker compose up -d lamp.mailhog
 
 up-all: check-env ## Starts all services: Apache (web), SQL (db), phpMyAdmin (pma), Redis (redis), MailHog (mailhog)
 	@COMPOSE_PROFILES=with-redis,with-pma,with-mailhog docker compose up -d lamp.web lamp.db lamp.redis lamp.pma lamp.mailhog
@@ -37,11 +41,11 @@ build-no-cache: ## Builds all containers without cache
 	@docker compose build --no-cache
 
 switch-php: ## Rebuilds Apache (web) container after PHP version change
-	@docker compose build web
+	@docker compose build lamp.web
 	@$(MAKE) restart
 
 switch-db: ## Rebuilds SQL (db) container after SQL version change
-	@docker compose build db
+	@docker compose build lamp.db
 	@$(MAKE) restart
 
 restart: ## Stops and restarts core containers Apache (web) and SQL (db)
