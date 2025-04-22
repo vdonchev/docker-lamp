@@ -5,7 +5,7 @@ check() {
   printf "[OK] %s\n" "$1"
 }
 
-echo "🔧 Starting environment initialization..."
+echo "Starting environment initialization..."
 
 # Check if docker-compose.yml exists
 if [ -f docker-compose.yml ]; then

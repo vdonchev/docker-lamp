@@ -44,7 +44,7 @@ read_projects() {
 
     # Validate format: domain,path
     if [[ ! "$line" =~ ^[[:space:]]*[^,#[:space:]][^,]*,[^[:space:]].*$ ]]; then
-      echo "⚠️  Invalid line format, skipping: $line"
+      echo "[X] Invalid line format, skipping: $line"
       continue
     fi
 
@@ -126,5 +126,5 @@ chmod -R a+rw "$VHOSTS_DIR/generated"
 # Cleanup
 rm "$TMP_VHOSTS"
 
-printf " ✔ Generated %s\n" "$OUTPUT_FILE"
+printf "[OK] Generated %s\n" "$OUTPUT_FILE"
 

@@ -65,4 +65,4 @@ openssl req -x509 -nodes -days 3650 \
 
 rm "$TMP_CONF"
 
-printf " ✔ Successfully generated multi-domain SSL cert:\n - %s\n - %s\n" "$CRT_FILE" "$KEY_FILE"
+printf "[OK] Successfully generated multi-domain SSL cert:\n - %s\n - %s\n" "$CRT_FILE" "$KEY_FILE"
