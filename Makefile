@@ -16,8 +16,8 @@ status: ## Shows status of all containers
 	docker compose ps
 
 init: ## Runs the project initialization script
-	@test -x scripts/.init.sh || chmod +x scripts/.init.sh
-	@scripts/.init.sh
+	@test -x scripts/init.sh || chmod +x scripts/init.sh
+	@scripts/init.sh
 
 up: check-env ## Starts Apache (web) and SQL (db)
 	@docker compose up -d lamp.web lamp.db
