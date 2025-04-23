@@ -1,6 +1,6 @@
 .PHONY: check-env status init up up-pma up-redis up-mailpit up-all build build-no-cache switch-php switch-db \
 	restart restart-all down logs logs-web logs-php logs-db logs-pma logs-mailpit logs-redis clean-log \
-	sql-cli cert shell shell-sql fix-perms help
+	cli-db cert shell shell-db fix-perms help
 
 .DEFAULT_GOAL := help
 
@@ -85,7 +85,7 @@ clean-log: ## Fully deletes and recreates ./var/log directory
 	@mkdir -p ./var/log
 	@echo "./var/log has been deleted and recreated."
 
-sql-cli: ## Opens SQL CLI inside the SQL (db) container
+cli-db: ## Opens SQL CLI inside the SQL (db) container
 	docker exec -it db mysql -u root -p
 
 cert: ## Generates a local multi-domain self-signed SSL certificate
@@ -94,7 +94,7 @@ cert: ## Generates a local multi-domain self-signed SSL certificate
 shell: ## Opens a bash shell inside the Apache (web) container
 	docker exec -it web bash
 
-shell-sql: ## Opens a bash shell inside the SQL (db) container
+shell-db: ## Opens a bash shell inside the SQL (db) container
 	docker exec -it db bash
 
 fix-perms: ## Fixes executable permissions on scripts

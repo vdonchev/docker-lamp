@@ -1,3 +1,5 @@
--add entrypoint for sql
--add readme
--add comments on non-modifiable files
+-install composer
+-opcache
+-install imagick
+-unzip
+-nano
