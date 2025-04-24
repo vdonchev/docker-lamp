@@ -17,6 +17,7 @@ fi
 
 # Generate .env file with absolute paths
 ENV_FILE=".env"
+EXAMPLE_ENV="example.env"
 PWD_ABS="$(pwd)"
 
 if [ -f "$ENV_FILE" ]; then
@@ -31,19 +32,18 @@ else
 fi
 
 if [ "$generate_env" = true ]; then
-  cat > "$ENV_FILE" <<EOF
-PHP_VERSION=php84
-SQL_VERSION=mysql84
-SQL_PORT=3306
-SQL_ROOT_PWD=root
-SQL_DATA_PATH=${PWD_ABS}/var/db
-WEB_ROOT=${PWD_ABS}/app
-HTTP_PORT=80
-HTTPS_PORT=443
-PMA_PORT=8080
-EOF
+  if [ -f "$EXAMPLE_ENV" ]; then
+    cp "$EXAMPLE_ENV" "$ENV_FILE"
 
-  check ".env file generated with absolute paths"
+    # Replace SQL_DATA_PATH and WEB_ROOT values
+    sed -i "s|^SQL_DATA_PATH=.*|SQL_DATA_PATH=${PWD_ABS}/var/db|" "$ENV_FILE"
+    sed -i "s|^WEB_ROOT=.*|WEB_ROOT=${PWD_ABS}/app|" "$ENV_FILE"
+
+    check ".env generated from example.env with absolute paths for SQL_DATA_PATH and WEB_ROOT"
+  else
+    echo "example.env not found. Initialization aborted."
+    exit 1
+  fi
 fi
 
 # Fix executable permissions
