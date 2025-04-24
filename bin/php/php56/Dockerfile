@@ -8,6 +8,8 @@ RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /
 
 # Install required system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    nano \
+    unzip \
     curl \
     libcurl4-openssl-dev \
     libxml2-dev \
@@ -18,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libjpeg-dev \
     libfreetype6-dev \
     libmcrypt-dev \
+    imagemagick libmagickwand-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure GD manually for legacy PHP
@@ -37,11 +40,16 @@ RUN docker-php-ext-install \
     gd \
     bcmath \
     exif \
+    opcache \
     mcrypt
 
 # Install Redis (final compatible version for PHP 5.6)
 RUN pecl install redis-3.1.6 \
  && docker-php-ext-enable redis
+
+# Install imagick php extension
+RUN pecl install imagick-3.4.4 \
+ && docker-php-ext-enable imagick
 
 # Install Xdebug (final compatible version for PHP 5.6)
 RUN pecl install xdebug-2.5.5 \
@@ -57,6 +65,9 @@ RUN php -r "exit(version_compare(PHP_VERSION, '7.2', '<') ? 0 : 1);" \
       && cp /tmp/xdebug.legacy.ini /usr/local/etc/php/conf.d/100-xdebug.ini \
       || cp /tmp/xdebug.ini /usr/local/etc/php/conf.d/100-xdebug.ini \
       && rm /tmp/xdebug.*
+
+# Install Composer binary
+COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 
 # Enable Apache modules
 RUN a2enmod ssl rewrite headers proxy proxy_http

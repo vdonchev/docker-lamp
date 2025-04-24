@@ -2,7 +2,8 @@ FROM php:8.0-apache
 
 # Install required dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-#    passwd \
+    nano \
+    unzip \
     curl \
     libcurl4-openssl-dev \
     libxml2-dev \
@@ -10,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libicu-dev \
     apt-utils build-essential libonig-dev \
     libpng-dev \
+    imagemagick libmagickwand-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install php extensions
@@ -22,7 +24,12 @@ RUN docker-php-ext-install curl \
     mbstring \
     gd \
     bcmath \
-    exif
+    exif \
+    opcache
+
+# Install imagick php extension
+RUN pecl install imagick \
+ && docker-php-ext-enable imagick
 
 # Install redis php extension
 RUN pecl install redis && docker-php-ext-enable redis
@@ -41,6 +48,9 @@ RUN php -r "exit(version_compare(PHP_VERSION, '7.2', '<') ? 0 : 1);" \
       && cp /tmp/xdebug.legacy.ini /usr/local/etc/php/conf.d/100-xdebug.ini \
       || cp /tmp/xdebug.ini /usr/local/etc/php/conf.d/100-xdebug.ini \
       && rm /tmp/xdebug.*
+
+# Install Composer binary
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Enable additional extensions
 RUN a2enmod ssl rewrite headers proxy proxy_http

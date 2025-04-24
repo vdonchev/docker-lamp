@@ -3,3 +3,6 @@
 -install imagick
 -unzip
 -nano
+
+
+- rermove apt-utils
