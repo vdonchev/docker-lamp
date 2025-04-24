@@ -1,4 +1,5 @@
-FROM php:7.1-apache
+ARG PHP_IMAGE_TAG
+FROM php:${PHP_IMAGE_TAG:-7.1}-apache
 
 # Patch outdated and removed Debian mirrors
 RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list \

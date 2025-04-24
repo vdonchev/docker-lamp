@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: bin/php/${PHP_VERSION:-php84}/Dockerfile
+      args:
+        PHP_IMAGE_TAG: ${PHP_IMAGE_TAG}
     ports:
       - ${HTTP_PORT:-80}:80
       - ${HTTPS_PORT:-443}:443

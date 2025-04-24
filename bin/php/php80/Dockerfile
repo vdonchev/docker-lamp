@@ -1,4 +1,5 @@
-FROM php:8.0-apache
+ARG PHP_IMAGE_TAG
+FROM php:${PHP_IMAGE_TAG:-8.0}-apache
 
 # Install required dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \

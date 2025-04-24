@@ -1,4 +1,5 @@
-FROM php:5.6-apache
+ARG PHP_IMAGE_TAG
+FROM php:${PHP_IMAGE_TAG:-5.6}-apache
 
 RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list \
  && sed -i 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list \

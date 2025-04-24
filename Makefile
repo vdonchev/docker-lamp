@@ -112,4 +112,3 @@ help: ## Displays this help message
 		cmd=parts[1]; desc=parts[2]; \
 		printf "  %s%-20s%s %s\n", cyan, cmd, normal, desc \
 	}'
-
