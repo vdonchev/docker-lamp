@@ -74,6 +74,14 @@ generate_http_vhost() {
         Require all granted
     </Directory>
 
+    <IfModule dir_module>
+        DirectoryIndex index.php index.html
+    </IfModule>
+
+    AddDefaultCharset UTF-8
+
+    Header set X-Environment "Development"
+
     ErrorLog /dev/stderr
     CustomLog /dev/stdout combined
 </VirtualHost>
@@ -96,6 +104,14 @@ generate_https_vhost() {
         AllowOverride All
         Require all granted
     </Directory>
+
+    <IfModule dir_module>
+        DirectoryIndex index.php index.html
+    </IfModule>
+
+    AddDefaultCharset UTF-8
+
+    Header set X-Environment "Development"
 
 	  SSLEngine on
     SSLCertificateFile "/etc/ssl/lamp/dev.crt"
