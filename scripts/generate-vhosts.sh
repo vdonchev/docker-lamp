@@ -10,7 +10,7 @@ BASE_DIR="$(realpath "$SCRIPT_DIR/..")"
 PROJECTS_DIR="$BASE_DIR/config/projects"
 VHOSTS_DIR="$BASE_DIR/config/apache/vhosts"
 SSL_DIR="$BASE_DIR/config/apache/ssl"
-OUTPUT_FILE="$VHOSTS_DIR/generated/httpd.conf"
+OUTPUT_FILE="$VHOSTS_DIR/generated/000-default.conf"
 
 LIST_MAIN="$PROJECTS_DIR/sites.list"
 LIST_LOCAL="$PROJECTS_DIR/sites.local.list"
