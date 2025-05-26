@@ -3,10 +3,10 @@ $phpVersion = phpversion();
 $hostname = gethostname();
 $extensions = get_loaded_extensions();
 $projectList = [];
-if(file_exists('/config/projects/sites.list')) {
-    $list = file('/config/projects/sites.list');
-    if (file_exists('/config/projects/sites.local.list')) {
-        $list = array_merge($list, file('/config/projects/sites.local.list'));
+if(file_exists('/config/projects/domains.conf')) {
+    $list = file('/config/projects/domains.conf');
+    if (file_exists('/config/projects/domains.local.conf')) {
+        $list = array_merge($list, file('/config/projects/domains.local.conf'));
     }
 
     $projectList = array_filter(array_map('trim', $list));

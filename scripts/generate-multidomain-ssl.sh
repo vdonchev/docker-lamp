@@ -8,8 +8,8 @@ BASE_DIR="$(realpath "$SCRIPT_DIR/..")"
 PROJECTS_DIR="$BASE_DIR/config/projects"
 SSL_DIR="$BASE_DIR/config/apache/ssl"
 
-LIST_MAIN="$PROJECTS_DIR/sites.list"
-LIST_LOCAL="$PROJECTS_DIR/sites.local.list"
+LIST_MAIN="$PROJECTS_DIR/domains.conf"
+LIST_LOCAL="$PROJECTS_DIR/domains.local.conf"
 
 CRT_FILE="$SSL_DIR/dev.crt"
 KEY_FILE="$SSL_DIR/dev.key"

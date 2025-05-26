@@ -23,4 +23,4 @@
 !/config/apache/vhosts/vhost.conf
 
 /config/projects/*
-!/config/projects/sites.list
+!/config/projects/domains.conf
