@@ -20,7 +20,7 @@
 !/config/php/my.cnf
 
 /config/apache/vhosts/*
-!/config/apache/vhosts/httpd.default.conf
+!/config/apache/vhosts/vhost.conf
 
 /config/projects/*
 !/config/projects/sites.list

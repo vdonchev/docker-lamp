@@ -15,8 +15,8 @@ OUTPUT_FILE="$VHOSTS_DIR/generated/httpd.conf"
 LIST_MAIN="$PROJECTS_DIR/sites.list"
 LIST_LOCAL="$PROJECTS_DIR/sites.local.list"
 
-DEFAULT_VHOSTS="$VHOSTS_DIR/httpd.default.conf"
-LOCAL_VHOSTS="$VHOSTS_DIR/httpd.local.conf"
+DEFAULT_VHOSTS="$VHOSTS_DIR/vhost.conf"
+LOCAL_VHOSTS="$VHOSTS_DIR/vhost.local.conf"
 
 CRT_FILE="$SSL_DIR/dev.crt"
 KEY_FILE="$SSL_DIR/dev.key"

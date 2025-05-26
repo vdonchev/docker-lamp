@@ -56,7 +56,7 @@ check "required directories created (or already exist)"
 
 # Create missing config files
 declare -A files_to_create=(
-  ["config/apache/vhosts/httpd.local.conf"]="# Local Apache Vhosts config (auto-created)"
+  ["config/apache/vhosts/vhost.local.conf"]="# Local Apache Vhosts config (auto-created)"
   ["config/php/conf.d/php.local.ini"]="; Local PHP config (auto-created)"
   ["config/projects/sites.local.list"]="# List of project domains (auto-created)"
   ["config/sql/my.local.cnf"]="# Local SQL config (auto-created)"
