@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nano \
     unzip \
     curl \
+    git \
     libcurl4-openssl-dev \
     libxml2-dev \
     libzip-dev \
@@ -52,6 +53,10 @@ RUN php -r "exit(version_compare(PHP_VERSION, '7.2', '<') ? 0 : 1);" \
 
 # Install Composer binary
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Install Symfony CLI
+RUN curl -sS https://get.symfony.com/cli/installer | bash \
+    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
 
 # Enable additional extensions
 RUN a2enmod ssl rewrite headers proxy proxy_http
