@@ -12,12 +12,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     libicu-dev \
     apt-utils build-essential libonig-dev \
-    libpng-dev \
+    libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
     imagemagick libmagickwand-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install php extensions
-RUN docker-php-ext-install curl \
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install curl \
     xml \
     zip \
     mysqli \
