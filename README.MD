@@ -5,6 +5,9 @@ Supports multiple PHP and SQL versions, virtual hosts with HTTPS, and optional t
 
 Easily configurable via `.env`, with clean structure and no bloat.
 
+It’s especially well-suited for multi-project development scenarios.
+Local domains and automatic virtual host generation make it easy to run and switch between multiple projects seamlessly on the same environment.
+
 ## Requirements
 
 - **Docker** with **Docker Compose** (Compose V2 CLI plugin is recommended)
@@ -21,7 +24,7 @@ It should work on macOS and Docker Desktop for Windows, assuming paths and permi
 
 Like it simple? Sure, we do too. Pick the setup style that fits your workflow.
 
-### Manual setup
+### Manual setup (Recommended for Windows)
 
 ```bash
 git clone https://github.com/vdonchev/docker-lamp.git docker-lamp && cd docker-lamp
