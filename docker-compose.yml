@@ -1,6 +1,5 @@
 services:
-  lamp.web:
-    container_name: web
+  lamp_web:
     build:
       context: .
       dockerfile: bin/php/${PHP_VERSION:-php84}/Dockerfile
@@ -27,11 +26,10 @@ services:
       - ${EXTRA_SHARED_5:-/dev/null}:/mnt/shared5
     entrypoint: [ "/bin/bash", "-c", "/entrypoint.sh && exec apache2-foreground" ]
     depends_on:
-      - lamp.db
+      - lamp_db
     networks:
       - lamp
-  lamp.db:
-    container_name: db
+  lamp_db:
     build:
       context: .
       dockerfile: bin/sql/${SQL_VERSION:-mysql84}/Dockerfile
@@ -48,21 +46,19 @@ services:
     entrypoint: [ "/bin/bash", "-c", "/docker-entrypoint-initdb.d/00-entrypoint.sh && exec docker-entrypoint.sh mysqld" ]
     networks:
       - lamp
-  lamp.redis:
-    container_name: redis
+  lamp_redis:
     image: redis
     volumes:
       - redis-data:/data
     ports:
       - "6379:6379"
     depends_on:
-      - lamp.db
+      - lamp_db
     profiles:
       - with-redis
     networks:
       - lamp
-  lamp.pma:
-    container_name: pma
+  lamp_pma:
     image: phpmyadmin
     restart: always
     ports:
@@ -74,13 +70,12 @@ services:
       PMA_PASSWORD: ${SQL_ROOT_PWD:-root}
       MYSQL_ROOT_PASSWORD: ${SQL_ROOT_PWD:-root}
     depends_on:
-      - lamp.db
+      - lamp_db
     profiles:
       - with-pma
     networks:
       - lamp
-  lamp.mailpit:
-    container_name: mailpit
+  lamp_mailpit:
     image: axllent/mailpit
     ports:
       - "8025:8025"     # Web UI

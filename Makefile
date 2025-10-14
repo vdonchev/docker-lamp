@@ -20,19 +20,19 @@ init: ## Runs the project initialization script
 	@scripts/init.sh
 
 up: check-env ## Starts Apache (web) and SQL (db)
-	@docker compose up -d lamp.web lamp.db
+	@docker compose up -d lamp_web lamp_db
 
 up-pma: check-env ## Starts phpMyAdmin (pma)
-	@COMPOSE_PROFILES=with-pma docker compose up -d lamp.pma
+	@COMPOSE_PROFILES=with-pma docker compose up -d lamp_pma
 
 up-redis: check-env ## Starts Redis (redis)
-	@COMPOSE_PROFILES=with-redis docker compose up -d lamp.redis
+	@COMPOSE_PROFILES=with-redis docker compose up -d lamp_redis
 
 up-mailpit: check-env ## Starts Mailpit (mailpit)
-	@COMPOSE_PROFILES=with-mailpit docker compose up -d lamp.mailpit
+	@COMPOSE_PROFILES=with-mailpit docker compose up -d lamp_mailpit
 
 up-all: check-env ## Starts all services: Apache (web), SQL (db), phpMyAdmin (pma), Redis (redis), Mailpit (mailpit)
-	@COMPOSE_PROFILES=with-redis,with-pma,with-mailpit docker compose up -d lamp.web lamp.db lamp.redis lamp.pma lamp.mailpit
+	@COMPOSE_PROFILES=with-redis,with-pma,with-mailpit docker compose up -d lamp_web lamp_db lamp_redis lamp_pma lamp_mailpit
 
 build: ## Builds all containers using cache
 	@docker compose build
@@ -41,11 +41,11 @@ build-no-cache: ## Builds all containers without cache
 	@docker compose build --no-cache
 
 switch-php: ## Rebuilds Apache (web) container after PHP version change
-	@docker compose build lamp.web
+	@docker compose build lamp_web
 	@$(MAKE) restart
 
 switch-db: ## Rebuilds SQL (db) container after SQL version change
-	@docker compose build lamp.db
+	@docker compose build lamp_db
 	@$(MAKE) restart
 
 restart: ## Stops and restarts core containers Apache (web) and SQL (db)
@@ -54,7 +54,7 @@ restart: ## Stops and restarts core containers Apache (web) and SQL (db)
 
 restart-all: ## Stops and restarts all containers
 	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose down --volumes --remove-orphans
-	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose up -d lamp.web lamp.db lamp.pma lamp.redis lamp.mailpit
+	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose up -d lamp_web lamp_db lamp_pma lamp_redis lamp_mailpit
 
 down: ## Stops and removes all containers, volumes, and orphans
 	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose down --volumes --remove-orphans
@@ -63,22 +63,22 @@ logs: ## Tails logs for all containers (live view)
 	docker compose logs -f --tail=50
 
 logs-web: ## Tails Apache (web) log
-	docker compose logs -f lamp.web
+	docker compose logs -f lamp_web
 
 logs-php: ## Tails only PHP-related entries from Apache (web) error log
 	tail -f var/log/apache/error.log | grep PHP
 
 logs-db: ## Tails SQL (db) logs
-	docker compose logs -f lamp.db
+	docker compose logs -f lamp_db
 
 logs-pma: ## Tails phpMyAdmin (pma) logs
-	docker compose logs -f lamp.pma
+	docker compose logs -f lamp_pma
 
 logs-mailpit: ## Tails Mailpit (mailpit) logs
-	docker compose logs -f lamp.mailpit
+	docker compose logs -f lamp_mailpit
 
 logs-redis: ## Tails Redis (redis) logs
-	docker compose logs -f lamp.redis
+	docker compose logs -f lamp_redis
 
 clean-log: ## Fully deletes and recreates ./var/log directory
 	@sudo rm -rf ./var/log
@@ -86,16 +86,16 @@ clean-log: ## Fully deletes and recreates ./var/log directory
 	@echo "./var/log has been deleted and recreated."
 
 cli-db: ## Opens SQL CLI inside the SQL (db) container
-	docker compose exec -it lamp.db mysql -u root -p
+	docker compose exec -it lamp_db mysql -u root -p
 
 cert: ## Generates a local multi-domain self-signed SSL certificate
 	./scripts/generate-multidomain-ssl.sh
 
 shell: ## Opens a bash shell inside the Apache (web) container
-	docker compose exec -it lamp.web bash
+	docker compose exec -it lamp_web bash
 
 shell-db: ## Opens a bash shell inside the SQL (db) container
-	docker compose exec -it lamp.db bash
+	docker compose exec -it lamp_db bash
 
 fix-perms: ## Fixes executable permissions on scripts
 	chmod +x scripts/**/*.sh
