@@ -63,22 +63,22 @@ logs: ## Tails logs for all containers (live view)
 	docker compose logs -f --tail=50
 
 logs-web: ## Tails Apache (web) log
-	docker logs -f web
+	docker compose logs -f lamp.web
 
 logs-php: ## Tails only PHP-related entries from Apache (web) error log
 	tail -f var/log/apache/error.log | grep PHP
 
 logs-db: ## Tails SQL (db) logs
-	docker logs -f db
+	docker compose logs -f lamp.db
 
 logs-pma: ## Tails phpMyAdmin (pma) logs
-	docker logs -f pma
+	docker compose logs -f lamp.pma
 
 logs-mailpit: ## Tails Mailpit (mailpit) logs
-	docker logs -f mailpit
+	docker compose logs -f lamp.mailpit
 
 logs-redis: ## Tails Redis (redis) logs
-	docker logs -f redis
+	docker compose logs -f lamp.redis
 
 clean-log: ## Fully deletes and recreates ./var/log directory
 	@sudo rm -rf ./var/log
@@ -86,16 +86,16 @@ clean-log: ## Fully deletes and recreates ./var/log directory
 	@echo "./var/log has been deleted and recreated."
 
 cli-db: ## Opens SQL CLI inside the SQL (db) container
-	docker exec -it db mysql -u root -p
+	docker compose exec -it lamp.db mysql -u root -p
 
 cert: ## Generates a local multi-domain self-signed SSL certificate
 	./scripts/generate-multidomain-ssl.sh
 
 shell: ## Opens a bash shell inside the Apache (web) container
-	docker exec -it web bash
+	docker compose exec -it lamp.web bash
 
 shell-db: ## Opens a bash shell inside the SQL (db) container
-	docker exec -it db bash
+	docker compose exec -it lamp.db bash
 
 fix-perms: ## Fixes executable permissions on scripts
 	chmod +x scripts/**/*.sh
