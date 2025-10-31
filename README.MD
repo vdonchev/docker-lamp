@@ -28,7 +28,11 @@ Like it simple? Sure, we do too. Pick the setup style that fits your workflow.
 
 ```bash
 git clone https://github.com/vdonchev/docker-lamp.git docker-lamp && cd docker-lamp
+
 cp example.env .env
+# OR 'example.win.env' optimised defaults for Docker running on Windows without WSL
+cp example.win.env .env
+
 # Edit the .env file to match your local project path, PHP/SQL versions, ports, etc.
 docker compose up -d
 ```
