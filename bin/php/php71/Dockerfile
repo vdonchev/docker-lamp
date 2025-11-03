@@ -48,7 +48,7 @@ RUN pecl install imagick-3.4.4 \
  && docker-php-ext-enable imagick
 
 # Install Xdebug
-RUN pecl install xdebug-2.9.8 \
+RUN pecl install xdebug-2.9 \
  && docker-php-ext-enable xdebug \
  && mkdir -p /var/log/xdebug
 
