@@ -73,5 +73,19 @@ COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 # Enable Apache modules
 RUN a2enmod ssl rewrite headers proxy proxy_http
 
+# Custom install hook
+COPY config/php/custom/ /docker-custom/
+RUN if [ -d /docker-custom ]; then \
+      chmod +x /docker-custom/*.sh 2>/dev/null || true; \
+      for f in /docker-custom/*.sh; do \
+        [ -f "$f" ] || continue; \
+        echo "Running custom script: $f"; \
+        /bin/sh "$f"; \
+      done; \
+      echo "All custom install scripts executed."; \
+    else \
+      echo "No custom scripts found, skipping."; \
+    fi \
+
 # Set FQDN
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf

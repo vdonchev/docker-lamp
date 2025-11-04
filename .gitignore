@@ -24,3 +24,6 @@
 
 /config/projects/*
 !/config/projects/domains.conf
+
+/config/php/custom/*
+!/config/php/custom/install.example.sh
