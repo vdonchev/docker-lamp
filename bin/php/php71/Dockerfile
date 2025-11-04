@@ -92,7 +92,7 @@ RUN if [ -d /docker-custom ]; then \
       echo "All custom install scripts executed."; \
     else \
       echo "No custom scripts found, skipping."; \
-    fi \
+    fi
 
 # Set FQDN
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
