@@ -53,7 +53,7 @@ RUN pecl install imagick-3.4.4 \
  && docker-php-ext-enable imagick
 
 # Install Xdebug (final compatible version for PHP 5.6)
-RUN pecl install xdebug-2.5 \
+RUN pecl install xdebug-2.5.5 \
  && docker-php-ext-enable xdebug \
  && mkdir -p /var/log/xdebug
 
