@@ -36,15 +36,16 @@ function Get-Domains($file) {
 }
 
 # --- Collect domains safely ---
-$domains = @()
-$mainDomains = Get-Domains $ListMain
-$localDomains = Get-Domains $ListLocal
+[string[]]$domains = @()
 
-if ($mainDomains) { $domains += $mainDomains }
-if ($localDomains) { $domains += $localDomains }
+$mainDomains = @(Get-Domains $ListMain)
+$localDomains = @(Get-Domains $ListLocal)
 
-# Filter out null or empty entries and duplicates
-$domains = $domains | Where-Object { $_ -and $_ -match '^[a-zA-Z0-9.-]+$' } | Sort-Object -Unique
+if ($mainDomains.Count -gt 0) { $domains += $mainDomains }
+if ($localDomains.Count -gt 0) { $domains += $localDomains }
+
+# Filter valid entries only
+$domains = $domains | Where-Object { $_ -match '^[a-zA-Z0-9.-]+$' } | Sort-Object -Unique
 
 if (-not $domains -or $domains.Count -eq 0) {
     Write-Host "[WARN] No domains found in domains.conf or domains.local.conf"
