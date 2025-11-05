@@ -50,18 +50,11 @@ RUN pecl install imagick-3.4.4 \
 
 # Install Xdebug
 RUN pecl install xdebug-2.9.8 \
- && docker-php-ext-enable xdebug \
  && mkdir -p /var/log/xdebug
 
 # Copy Xdebug configs
-COPY config/php/xdebug/xdebug.ini /tmp/xdebug.ini
-COPY config/php/xdebug/xdebug.legacy.ini /tmp/xdebug.legacy.ini
-
-# Dynamically choose which to load based on PHP version
-RUN php -r "exit(version_compare(PHP_VERSION, '7.2', '<') ? 0 : 1);" \
-      && cp /tmp/xdebug.legacy.ini /usr/local/etc/php/conf.d/100-xdebug.ini \
-      || cp /tmp/xdebug.ini /usr/local/etc/php/conf.d/100-xdebug.ini \
-      && rm /tmp/xdebug.*
+COPY config/php/xdebug/xdebug.ini /usr/local/etc/php/xdebug.ini
+COPY config/php/xdebug/xdebug.legacy.ini /usr/local/etc/php/xdebug.legacy.ini
 
 # Install Composer binary
 COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
