@@ -16,8 +16,8 @@
 /config/php/conf.d/*
 !/config/php/conf.d/php.ini
 
-/config/sql/*
-!/config/php/my.cnf
+/config/sql/*/*
+!/config/sql/*/my.cnf
 
 /config/apache/vhosts/*
 !/config/apache/vhosts/vhost.conf

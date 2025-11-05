@@ -3,6 +3,31 @@ set -e
 
 echo "[init] Starting SQL entrypoint logic..."
 
+# Normalize engine name
+SQL_ENGINE=$(echo "${SQL_ENGINE:-mysql}" | tr '[:upper:]' '[:lower:]')
+
+# Validate allowed engines
+if [ "$SQL_ENGINE" != "mysql" ] && [ "$SQL_ENGINE" != "mariadb" ]; then
+    echo "[error] Unsupported SQL_ENGINE='$SQL_ENGINE'. Only 'mysql' or 'mariadb' are allowed."
+    exit 1
+fi
+
+# Normalize version: keep only major.minor (e.g. 8.4, 11.4)
+SQL_VERSION_RAW="${SQL_VERSION:-8.4}"
+SQL_VERSION_MAJOR_MINOR=$(echo "$SQL_VERSION_RAW" | awk -F. '{print $1"."$2}')
+SQL_VERSION_CLEAN=$(echo "$SQL_VERSION_MAJOR_MINOR" | tr -d '.')
+
+# Paths
+BASE_DIR="/var/db-host"                           # mounted from host (./var/db)
+TARGET_DIR="${BASE_DIR}/${SQL_ENGINE}${SQL_VERSION_CLEAN}"
+
+echo "[init] Preparing versioned data directory: $TARGET_DIR"
+mkdir -p "$TARGET_DIR"
+
+# Tell MySQL where to store data
+export DATADIR="$TARGET_DIR"
+
+# Handle optional local configuration override
 LOCAL_CNF="/config/sql/my.local.cnf"
 TARGET_CNF="/etc/mysql/conf.d/999-local.cnf"
 
@@ -13,5 +38,19 @@ else
     echo "[init] No local SQL config found. Continuing..."
 fi
 
-echo "[init] Executing: $@"
-exec "$@"
+echo "[init] Using SQL_ENGINE=$SQL_ENGINE, SQL_VERSION=$SQL_VERSION_RAW"
+echo "[init] Data directory: $DATADIR"
+
+if [ -n "$1" ]; then
+    echo "[init] Executing: $@"
+    exec "$@" --datadir="$DATADIR"
+else
+    if [ "$SQL_ENGINE" = "mariadb" ]; then
+        echo "[init] Executing default mariadbd startup"
+        exec docker-entrypoint.sh mariadbd --datadir="$DATADIR"
+    else
+        echo "[init] Executing default mysqld startup"
+        exec docker-entrypoint.sh mysqld --datadir="$DATADIR"
+    fi
+fi
+
