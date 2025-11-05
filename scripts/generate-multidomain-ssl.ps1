@@ -21,17 +21,32 @@ New-Item -ItemType Directory -Force -Path $SslDir | Out-Null
 # --- Functions ---
 function Get-Domains($file) {
     if (-not (Test-Path $file)) { return @() }
-    Get-Content -Encoding UTF8 $file | ForEach-Object {
-        # Ignore empty lines, comments, or malformed entries
-        if ($_ -match '^[a-zA-Z0-9\.-]+\s*,\s*.+$') {
-            ($_.Split(',')[0]).Trim()
+    $lines = Get-Content -Encoding UTF8 $file
+    $validDomains = @()
+    foreach ($line in $lines) {
+        # Skip comments, empty lines, or malformed entries
+        if ($line -match '^[a-zA-Z0-9\.-]+\s*,\s*.+$') {
+            $domain = ($line.Split(',')[0]).Trim()
+            if ($domain -and $domain -match '^[a-zA-Z0-9.-]+$') {
+                $validDomains += $domain
+            }
         }
     }
+    return ,$validDomains
 }
 
-# --- Collect domains ---
-$domains = @(Get-Domains $ListMain) + @(Get-Domains $ListLocal) | Sort-Object -Unique
-if ($domains.Count -eq 0) {
+# --- Collect domains safely ---
+$domains = @()
+$mainDomains = Get-Domains $ListMain
+$localDomains = Get-Domains $ListLocal
+
+if ($mainDomains) { $domains += $mainDomains }
+if ($localDomains) { $domains += $localDomains }
+
+# Filter out null or empty entries and duplicates
+$domains = $domains | Where-Object { $_ -and $_ -match '^[a-zA-Z0-9.-]+$' } | Sort-Object -Unique
+
+if (-not $domains -or $domains.Count -eq 0) {
     Write-Host "[WARN] No domains found in domains.conf or domains.local.conf"
     Write-Host "       Certificate generation skipped."
     exit 0
