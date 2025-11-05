@@ -28,4 +28,23 @@ fi
 echo "[init] Setting dev-friendly permissions for /var/www..."
 chmod -R a+rwX /var/www
 
+# Xdebug runtime toggle
+choose_xdebug_ini() {
+  php -r 'exit(version_compare(PHP_VERSION, "7.2", "<") ? 0 : 1);'
+  if [ $? -eq 0 ]; then
+    echo "/usr/local/etc/php/xdebug.legacy.ini"
+  else
+    echo "/usr/local/etc/php/xdebug.ini"
+  fi
+}
+
+if [ "${ENABLE_XDEBUG}" = "true" ]; then
+  ini_src="$(choose_xdebug_ini)"
+  echo "[init] Enabling Xdebug using $(basename "$ini_src")"
+  cp "$ini_src" /usr/local/etc/php/conf.d/100-xdebug.ini
+else
+  rm -f /usr/local/etc/php/conf.d/100-xdebug.ini 2>/dev/null || true
+  echo "[init] Xdebug disabled."
+fi
+
 echo "[init] Launching Apache..."
