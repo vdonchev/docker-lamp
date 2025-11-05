@@ -47,12 +47,6 @@ if ($GenerateEnv) {
   }
 }
 
-# Fix script permissions (no-op on Windows but normalize line endings)
-Get-ChildItem -Recurse -Path "scripts" -Filter "*.sh" | ForEach-Object {
-  Set-Content $_.FullName -Value (Get-Content $_.FullName)
-}
-Check "script permissions normalized"
-
 # Required directories
 New-Item -ItemType Directory -Force -Path "var/log", "config/apache/vhosts/generated" | Out-Null
 Check "required directories created (or already exist)"
