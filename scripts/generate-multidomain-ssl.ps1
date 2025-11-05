@@ -21,12 +21,10 @@ New-Item -ItemType Directory -Force -Path $SslDir | Out-Null
 # --- Functions ---
 function Get-Domains($file) {
     if (-not (Test-Path $file)) { return @() }
-    Get-Content $file | ForEach-Object {
-        if ($_ -notmatch '^\s*#' -and $_ -match ',') {
-            $parts = $_ -split ','
-            if ($parts.Count -ge 2 -and $parts[0].Trim() -ne '') {
-                $parts[0].Trim()
-            }
+    Get-Content -Encoding UTF8 $file | ForEach-Object {
+        # Ignore empty lines, comments, or malformed entries
+        if ($_ -match '^[a-zA-Z0-9\.-]+\s*,\s*.+$') {
+            ($_.Split(',')[0]).Trim()
         }
     }
 }
