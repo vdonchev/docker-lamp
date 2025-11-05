@@ -59,7 +59,8 @@ declare -A files_to_create=(
   ["config/apache/vhosts/vhost.local.conf"]="# Local Apache Vhosts config (auto-created)"
   ["config/php/conf.d/php.local.ini"]="; Local PHP config (auto-created)"
   ["config/projects/domains.local.conf"]="# List of project domains (auto-created)"
-  ["config/sql/my.local.cnf"]="# Local SQL config (auto-created)"
+  ["config/sql/mysql/my.local.cnf"]="# Local MySQL config (auto-created)"
+  ["config/sql/mariadb/my.local.cnf"]="# Local MariaDB config (auto-created)"
 )
 
 for file in "${!files_to_create[@]}"; do

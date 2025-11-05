@@ -16,8 +16,12 @@ status: ## Shows status of all containers
 	docker compose ps
 
 init: ## Runs the project initialization script
+ifeq ($(OS),Windows_NT)
+	@powershell -ExecutionPolicy Bypass -File scripts/init.ps1
+else
 	@test -x scripts/init.sh || chmod +x scripts/init.sh
 	@scripts/init.sh
+endif
 
 up: check-env ## Starts Apache (web) and SQL (db)
 	@docker compose up -d lamp_web lamp_db
