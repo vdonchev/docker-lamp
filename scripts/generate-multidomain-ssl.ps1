@@ -71,7 +71,7 @@ try {
         -keyout $KeyFile `
         -out $CrtFile `
         -subj "/CN=$Primary" `
-        -addext "subjectAltName=$san" 2>&1 | Out-Null
+        -addext "subjectAltName=$san" | Out-Null
 
     if ($LASTEXITCODE -ne 0) {
         throw "OpenSSL returned exit code $LASTEXITCODE"
