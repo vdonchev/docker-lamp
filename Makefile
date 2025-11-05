@@ -4,7 +4,7 @@
 
 .DEFAULT_GOAL := help
 
-ALL_PROFILES := with-redis,with-pma,with-mailpit
+ALL_PROFILES := with-redis,with-pma,with-mailpit,with-node
 
 # Internal target: checks if .env exists
 check-env:
@@ -21,6 +21,9 @@ init: ## Runs the project initialization script
 
 up: check-env ## Starts Apache (web) and SQL (db)
 	@docker compose up -d lamp_web lamp_db
+
+up-node: check-env ## Starts Node
+	@COMPOSE_PROFILES=with-node docker compose up -d lamp_node
 
 up-pma: check-env ## Starts phpMyAdmin (pma)
 	@COMPOSE_PROFILES=with-pma docker compose up -d lamp_pma
@@ -71,6 +74,9 @@ logs-php: ## Tails only PHP-related entries from Apache (web) error log
 logs-db: ## Tails SQL (db) logs
 	docker compose logs -f lamp_db
 
+logs-node: ## Tails Node logs
+	docker compose logs -f lamp_node
+
 logs-pma: ## Tails phpMyAdmin (pma) logs
 	docker compose logs -f lamp_pma
 
@@ -96,6 +102,9 @@ shell: ## Opens a bash shell inside the Apache (web) container
 
 shell-db: ## Opens a bash shell inside the SQL (db) container
 	docker compose exec -it lamp_db bash
+
+shell-node: ## Opens a bash shell inside the Node container
+	docker compose exec -it lamp_node bash
 
 fix-perms: ## Fixes executable permissions on scripts
 	chmod +x scripts/**/*.sh

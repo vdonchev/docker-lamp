@@ -48,6 +48,14 @@ services:
     entrypoint: [ "/bin/bash", "-c", "/docker-entrypoint-initdb.d/00-entrypoint.sh && exec docker-entrypoint.sh mysqld" ]
     networks:
       - lamp
+  lamp_node:
+    image: node:22
+    working_dir: /projects
+    volumes:
+      - ${WEB_ROOT:-./app}:/projects
+    command: tail -f /dev/null
+    profiles:
+      - with-node
   lamp_redis:
     image: redis
     volumes:
