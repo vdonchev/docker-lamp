@@ -54,7 +54,7 @@ foreach ($d in $domains) {
   $conf += "DNS.$i = $d`n"
   $i++
 }
-$conf | Set-Content -Path $tmpConf -Encoding ascii
+$conf | Out-File -FilePath $tmpConf -Encoding ascii -NoNewline
 
 # Ensure openssl exists
 if (-not (Get-Command openssl -ErrorAction SilentlyContinue)) {
