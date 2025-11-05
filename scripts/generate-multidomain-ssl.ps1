@@ -1,77 +1,80 @@
 # generate-multidomain-ssl.ps1
+# Generates a local multi-domain SSL certificate for Docker Apache setup.
+# Works natively on Windows with OpenSSL 3+.
+# Requires: PowerShell 5+, OpenSSL available in PATH.
+
 $ErrorActionPreference = "Stop"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$BaseDir = Resolve-Path "$ScriptDir\.."
-$ProjectsDir = "$BaseDir\config\projects"
-$SslDir = "$BaseDir\config\apache\ssl"
+$BaseDir   = Resolve-Path "$ScriptDir\.."
+$Projects  = "$BaseDir\config\projects"
+$SslDir    = "$BaseDir\config\apache\ssl"
 
-$ListMain = "$ProjectsDir\domains.conf"
-$ListLocal = "$ProjectsDir\domains.local.conf"
+$ListMain  = "$Projects\domains.conf"
+$ListLocal = "$Projects\domains.local.conf"
 
 $CrtFile = "$SslDir\dev.crt"
 $KeyFile = "$SslDir\dev.key"
 
 New-Item -ItemType Directory -Force -Path $SslDir | Out-Null
 
+# --- Functions ---
 function Get-Domains($file) {
-  if (-Not (Test-Path $file)) { return @() }
-  $lines = Get-Content $file | Where-Object {$_ -notmatch '^\s*#' -and $_ -match ','}
-  foreach ($line in $lines) {
-    $parts = $line -split ','
-    if ($parts.Count -ge 2 -and $parts[0].Trim() -ne '') {
-      $parts[0].Trim()
+    if (-not (Test-Path $file)) { return @() }
+    Get-Content $file | ForEach-Object {
+        if ($_ -notmatch '^\s*#' -and $_ -match ',') {
+            $parts = $_ -split ','
+            if ($parts.Count -ge 2 -and $parts[0].Trim() -ne '') {
+                $parts[0].Trim()
+            }
+        }
     }
-  }
 }
 
+# --- Collect domains ---
 $domains = @(Get-Domains $ListMain) + @(Get-Domains $ListLocal) | Sort-Object -Unique
 if ($domains.Count -eq 0) {
-  Write-Host "No domains found. Aborting certificate generation."
-  exit 1
+    Write-Host "[WARN] No domains found in domains.conf or domains.local.conf"
+    Write-Host "       Certificate generation skipped."
+    exit 0
 }
+
 $Primary = $domains[0]
+$san = ($domains | ForEach-Object { "DNS:$($_)" }) -join ","
 
-$tmpConf = New-TemporaryFile
-$conf = @"
-[req]
-default_bits = 2048
-prompt = no
-default_md = sha256
-distinguished_name = dn
-req_extensions = req_ext
-
-[dn]
-CN = $Primary
-
-[req_ext]
-subjectAltName = @alt_names
-
-[alt_names]
-"@
-$i = 1
-foreach ($d in $domains) {
-  $conf += "DNS.$i = $d`n"
-  $i++
-}
-$conf | Out-File -FilePath $tmpConf -Encoding ascii -NoNewline
-
-# Ensure openssl exists
+# --- Verify OpenSSL presence ---
 if (-not (Get-Command openssl -ErrorAction SilentlyContinue)) {
-  Write-Host "OpenSSL not found. Install it and rerun."
-  exit 1
+    Write-Host "[WARN] OpenSSL not found in PATH. Skipping SSL generation."
+    Write-Host "       Install OpenSSL or rerun this script later."
+    exit 0
 }
 
-# Generate the certificate
-& openssl req -x509 -nodes -days 3650 `
-  -newkey rsa:2048 `
-  -keyout $KeyFile `
-  -out $CrtFile `
-  -config $tmpConf `
-  -extensions req_ext | Out-Null
+# --- Generate certificate ---
+Write-Host "Generating SSL certificate for: $Primary"
+try {
+    & openssl req -x509 -nodes -days 3650 `
+        -newkey rsa:2048 `
+        -keyout $KeyFile `
+        -out $CrtFile `
+        -subj "/CN=$Primary" `
+        -addext "subjectAltName=$san" | Out-Null
 
-Remove-Item $tmpConf -Force
+    if ($LASTEXITCODE -ne 0) {
+        throw "OpenSSL returned exit code $LASTEXITCODE"
+    }
 
-Write-Host "[OK] Successfully generated multi-domain SSL cert:"
-Write-Host " - $CrtFile"
-Write-Host " - $KeyFile"
+    if (-not (Test-Path $CrtFile) -or (Get-Item $CrtFile).Length -eq 0) {
+        throw "Certificate file not created."
+    }
+    if (-not (Test-Path $KeyFile) -or (Get-Item $KeyFile).Length -eq 0) {
+        throw "Key file not created."
+    }
+
+    Write-Host "[OK] Successfully generated multi-domain SSL cert:"
+    Write-Host " - $CrtFile"
+    Write-Host " - $KeyFile"
+}
+catch {
+    Write-Host "[ERROR] SSL generation failed: $($_.Exception.Message)"
+    exit 1
+}

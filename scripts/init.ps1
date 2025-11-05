@@ -40,7 +40,7 @@ if ($GenerateEnv) {
            -replace '^WEB_ROOT=.*', "WEB_ROOT=$PwdAbs\app"
       } | Set-Content $EnvFile
 
-    Check ".env generated from example.env with absolute paths for SQL_DATA_PATH and WEB_ROOT"
+    Check ".env generated from example.win.env with absolute paths for SQL_DATA_PATH and WEB_ROOT"
   } else {
     Write-Host "example.env not found. Initialization aborted."
     exit 1
