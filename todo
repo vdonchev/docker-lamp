@@ -1,8 +1,2 @@
--install composer
--opcache
--install imagick
--unzip
--nano
-
-
-- rermove apt-utils
+make release tag
+make docs
