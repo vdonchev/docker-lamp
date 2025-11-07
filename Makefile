@@ -1,4 +1,4 @@
-.PHONY: check-env status init up up-pma up-redis up-mailpit up-all build build-no-cache switch-php switch-db \
+.PHONY: check-env status init up up-pma up-redis up-mailpit up-all build build-no-cache switch-php \
 	restart restart-all down logs logs-web logs-php logs-db logs-pma logs-mailpit logs-redis clean-log \
 	cli-db cert shell shell-db fix-perms help
 
@@ -49,10 +49,6 @@ build-no-cache: ## Builds all containers without cache
 
 switch-php: ## Rebuilds Apache (web) container after PHP version change
 	@docker compose build lamp_web
-	@$(MAKE) restart
-
-switch-db: ## Rebuilds SQL (db) container after SQL version change
-	@docker compose build lamp_db
 	@$(MAKE) restart
 
 restart: ## Stops and restarts core containers Apache (web) and SQL (db)
