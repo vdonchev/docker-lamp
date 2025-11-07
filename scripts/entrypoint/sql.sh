@@ -28,14 +28,25 @@ mkdir -p "$TARGET_DIR"
 export DATADIR="$TARGET_DIR"
 
 # Handle optional local configuration override
-LOCAL_CNF="/config/sql/my.local.cnf"
-TARGET_CNF="/etc/mysql/conf.d/999-local.cnf"
+# Config paths
+DEFAULT_CNF="/config/sql/${SQL_ENGINE}/my.cnf"
+LOCAL_CNF="/config/sql/${SQL_ENGINE}/my.local.cnf"
+TARGET_DIR_CONF="/etc/mysql/conf.d"
 
-if [ -f "$LOCAL_CNF" ]; then
-    echo "[init] Found local SQL config. Copying to $TARGET_CNF"
-    cp "$LOCAL_CNF" "$TARGET_CNF"
+# Apply default config
+if [ -f "$DEFAULT_CNF" ]; then
+    echo "[init] Applying default config from: $DEFAULT_CNF"
+    cp "$DEFAULT_CNF" "${TARGET_DIR_CONF}/000-default.cnf"
 else
-    echo "[init] No local SQL config found. Continuing..."
+    echo "[warn] Default config not found for engine: $SQL_ENGINE"
+fi
+
+# Apply local override if present
+if [ -f "$LOCAL_CNF" ]; then
+    echo "[init] Applying local override from: $LOCAL_CNF"
+    cp "$LOCAL_CNF" "${TARGET_DIR_CONF}/999-local.cnf"
+else
+    echo "[init] No local override found."
 fi
 
 echo "[init] Using SQL_ENGINE=$SQL_ENGINE, SQL_VERSION=$SQL_VERSION_RAW"

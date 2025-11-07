@@ -40,8 +40,7 @@ services:
     restart: always
     volumes:
       - ${SQL_DATA_PATH:-./var/db}:/var/db-host
-      - ./config/sql/${SQL_ENGINE}/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
-      - ./config/sql/${SQL_ENGINE}:/config/sql:ro
+      - ./config/sql:/config/sql:ro
       - ./scripts/entrypoint/sql.sh:/docker-entrypoint-initdb.d/00-entrypoint.sh
     environment:
       MYSQL_ROOT_PASSWORD: ${SQL_ROOT_PWD:-root}
