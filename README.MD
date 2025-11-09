@@ -59,7 +59,7 @@ make init
 make up
 ```
 
-## Windows (Terminal with PowerShell)
+## Windows (PowerShell)
 
 Manual installation:
 
@@ -70,7 +70,7 @@ Copy-Item example.win.env .env
 docker compose up -d
 ```
 
-Using the **init.ps1** script
+Using the **init.ps1** script:
 
 ```shell
 git clone https://github.com/vdonchev/docker-lamp.git docker-lamp; cd docker-lamp
@@ -79,14 +79,9 @@ git clone https://github.com/vdonchev/docker-lamp.git docker-lamp; cd docker-lam
 docker compose up -d
 ```
 
-If **GNU Make** is available:
-
-```shell
-git clone https://github.com/vdonchev/docker-lamp.git docker-lamp; cd docker-lamp
-make init
-# Then edit the .env file if needed
-make up
-```
+***Important note:***  
+`make` commands do **not** work correctly in **PowerShell** or **CMD** because the provided `Makefile` uses POSIX shell syntax.  
+Run all `make` commands from **Git Bash** or another Unix-like shell instead.
 
 ## Configuration
 
@@ -578,7 +573,9 @@ Simply rerun the same script, install generated certificate and restart the cont
     docker compose restart lamp_web
 
 ## Makefile Reference
-
+***Important note:***  
+`make` commands do **not** work correctly in **PowerShell** or **CMD** because the provided `Makefile` uses POSIX shell syntax.  
+If on Windows, run all `make` commands from **Git Bash** or another Unix-like shell instead.
 ---
 
 The provided **Makefile** simplifies managing the full LAMP environment.  
