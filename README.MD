@@ -629,6 +629,7 @@ Each optional container is part of a **Docker Compose profile**, allowing select
 | `make build` | Builds all containers using cache. |
 | `make build-no-cache` | Builds all containers without using cache. |
 | `make switch-php` | Rebuilds `lamp_web` after changing PHP version or tag in `.env`. |
+| `make rebuild` | Rebuilds and restarts all containers. Essential after changing `.env` build args. |
 
 ### Logs and Debugging
 
