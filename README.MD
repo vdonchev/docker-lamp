@@ -109,6 +109,14 @@ Copy the appropriate one to `.env` in the project root.
 | **GIT_USER_NAME**  | Git username injected into the container for commits.                   |
 | **GIT_USER_EMAIL** | Git email injected into the container for commits.                      |
 
+**Note:**  
+Changes to `PHP_VERSION`, `PHP_IMAGE_TAG`, or `GIT_USER_*` variables **require rebuilding** the lamp_web image,  
+as they are used during the build process:
+```bash
+docker compose build lamp_web
+docker compose up -d lamp_web
+```
+
 ## Configuring PHP
 
 ---
@@ -120,10 +128,10 @@ Copy the appropriate one to `.env` in the project root.
 | **PHP_IMAGE_TAG** | Optional tag to specify a custom PHP image variant. Leave empty to use the default tag. |
 
 **Note:**  
-Changes to these `.env` variables do **not** require rebuilding the lamp_web image,  
-but you must restart the container for the new settings to apply:
+Changes to these `.env` variables **require rebuilding** the lamp_web image because they define the base PHP environment:
 
 ```bash
+docker compose build lamp_web
 docker compose up -d lamp_web
 ```
 
@@ -150,10 +158,13 @@ This is optional — by default, the image tag is derived automatically from `PH
 **When to leave it empty:**
 - During active development, when you want to automatically track the latest patch version for your PHP branch.
 
-No rebuild is required after setting this variable — just recreate the container:
+**Note:**  
+Changes to these `.env` variables **require rebuilding** the lamp_web image,  
+as they determine the base image and build-time configuration:
 
-    docker compose up -d --force-recreate lamp_web
-
+```bash
+docker compose up -d --build lamp_web
+```
 
 ### Configuration files
 
