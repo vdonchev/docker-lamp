@@ -51,6 +51,9 @@ switch-php: ## Rebuilds Apache (web) container after PHP version change
 	@docker compose build lamp_web
 	@$(MAKE) restart
 
+rebuild: ## An alias to swtch-php make command
+	@$(MAKE) switch-php
+
 restart: ## Stops and restarts core containers Apache (web) and SQL (db)
 	@$(MAKE) down
 	@$(MAKE) up
