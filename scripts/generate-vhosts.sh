@@ -37,8 +37,9 @@ generate_http_vhost() {
     DocumentRoot $path
 
     <Directory $path>
-        Options +Indexes
+        Options +Indexes +FollowSymLinks
         AllowOverride All
+        FallbackResource /index.php
         Require all granted
     </Directory>
 
@@ -66,8 +67,9 @@ generate_https_vhost() {
     DocumentRoot $path
 
     <Directory $path>
-        Options +Indexes
+        Options +Indexes +FollowSymLinks
         AllowOverride All
+        FallbackResource /index.php
         Require all granted
     </Directory>
 
