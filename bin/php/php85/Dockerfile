@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev \
     libxml2-dev \
     libzip-dev \
+    libxslt1-dev \
     libicu-dev \
     apt-utils build-essential libonig-dev \
     libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
@@ -18,7 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install php extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    docker-php-ext-install curl \
+    docker-php-ext-install  \
+    curl \
     xml \
     zip \
     mysqli \
@@ -27,7 +29,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     mbstring \
     gd \
     bcmath \
-    exif
+    exif \
+    xsl
 
 # Install imagick php extension
 RUN pecl install imagick \
