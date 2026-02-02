@@ -22,12 +22,17 @@ services:
       - ./scripts:/scripts
       - ./config:/config
       - ./scripts/entrypoint/web.sh:/entrypoint.sh
-      # Optional shared mounts - Set in .env
+      # Optional 10 shared mounts - Set in .env
+      - ${EXTRA_SHARED_0:-/dev/null}:/mnt/shared0
       - ${EXTRA_SHARED_1:-/dev/null}:/mnt/shared1
       - ${EXTRA_SHARED_2:-/dev/null}:/mnt/shared2
       - ${EXTRA_SHARED_3:-/dev/null}:/mnt/shared3
       - ${EXTRA_SHARED_4:-/dev/null}:/mnt/shared4
       - ${EXTRA_SHARED_5:-/dev/null}:/mnt/shared5
+      - ${EXTRA_SHARED_6:-/dev/null}:/mnt/shared6
+      - ${EXTRA_SHARED_7:-/dev/null}:/mnt/shared7
+      - ${EXTRA_SHARED_8:-/dev/null}:/mnt/shared8
+      - ${EXTRA_SHARED_9:-/dev/null}:/mnt/shared9
     entrypoint: [ "/bin/bash", "-c", "/entrypoint.sh && exec apache2-foreground" ]
     depends_on:
       - lamp_db
