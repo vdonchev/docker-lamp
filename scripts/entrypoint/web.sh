@@ -28,6 +28,11 @@ fi
 echo "[init] Setting dev-friendly permissions for /var/www..."
 chmod -R a+rwX /var/www
 
+# Keep newly created files writable across users in dev
+WEB_UMASK="${WEB_UMASK:-0000}"
+umask "$WEB_UMASK"
+echo "[init] Using umask: $WEB_UMASK"
+
 # Xdebug runtime toggle
 choose_xdebug_ini() {
   php -r 'exit(version_compare(PHP_VERSION, "7.2", "<") ? 0 : 1);'
