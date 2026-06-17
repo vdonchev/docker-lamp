@@ -55,7 +55,7 @@ services:
     networks:
       - lamp
   lamp_node:
-    image: node:22
+    image: node:${NODE_VERSION:-24}
     working_dir: /projects
     volumes:
       - ${WEB_ROOT:-./app}:/projects

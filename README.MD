@@ -97,6 +97,7 @@ Copy the appropriate one to `.env` in the project root.
 | **PHP_VERSION**    | PHP version to use (e.g. `php83`, `php82`).                             |
 | **PHP_IMAGE_TAG**  | Optional Docker image tag override for PHP. Leave empty to use default. |
 | **ENABLE_XDEBUG**  | Enables Xdebug extension when set to `true`.                            |
+| **NODE_VERSION**   | Node Docker image tag for the optional `lamp_node` container.           |
 | **SQL_ENGINE**     | Database engine (`mysql` or `mariadb`).                                 |
 | **SQL_VERSION**    | Database version (e.g. `8.4` for MySQL).                                |
 | **SQL_PORT**       | Host port mapped to the database container.                             |
@@ -256,9 +257,15 @@ Useful for compiling assets and running build pipelines.
 
     docker compose run --rm lamp_node npm install
     docker compose run --rm lamp_node npm run dev
+    docker compose run --rm lamp_node yarn install
+    docker compose run --rm lamp_node yarn dev
+
+**Configuration (.env):**
+- `NODE_VERSION=24` — Node Docker image tag used by `lamp_node`.
+- For legacy frontend stacks, override this value (e.g. `NODE_VERSION=14.21.3`).
 
 **Notes:**
-- Based on `node:22` image.
+- Based on `node:${NODE_VERSION:-24}` image.
 - Project source is mounted from `${WEB_ROOT:-./app}` to `/projects`.
 - Runs in idle mode (`tail -f /dev/null`) so you can exec into it freely.
 
