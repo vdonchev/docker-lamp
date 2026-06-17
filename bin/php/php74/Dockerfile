@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     libzip-dev \
     libicu-dev \
+    libgmp-dev \
     apt-utils build-essential libonig-dev \
     libpng-dev \
     imagemagick libmagickwand-dev \
@@ -23,6 +24,7 @@ RUN docker-php-ext-install curl \
     intl \
     mbstring \
     gd \
+    gmp \
     bcmath \
     exif \
     opcache

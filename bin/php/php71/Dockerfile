@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     libzip-dev \
     libicu-dev \
+    libgmp-dev \
     apt-utils build-essential \
     libpng-dev \
     libjpeg-dev \
@@ -35,6 +36,7 @@ RUN docker-php-ext-configure gd \
     intl \
     mbstring \
     gd \
+    gmp \
     bcmath \
     exif \
     opcache \

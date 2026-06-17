@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     libicu-dev \
     libxslt1-dev \
+    libgmp-dev \
     apt-utils build-essential libonig-dev \
     libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
     imagemagick libmagickwand-dev \
@@ -28,6 +29,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     intl \
     mbstring \
     gd \
+    gmp \
     bcmath \
     exif \
     opcache \
