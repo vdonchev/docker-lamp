@@ -42,7 +42,7 @@ RUN pecl install imagick \
 RUN pecl install redis && docker-php-ext-enable redis
 
 # Install xdebug php extension
-RUN pecl install xdebug-3.5.0 \
+RUN pecl install xdebug-3.5.3 \
  && mkdir -p /var/log/xdebug
 
 # Copy Xdebug configs

@@ -94,7 +94,7 @@ Copy the appropriate one to `.env` in the project root.
 
 | Variable           | Description                                                             |
 |--------------------|-------------------------------------------------------------------------|
-| **PHP_VERSION**    | PHP version to use (e.g. `php83`, `php82`).                             |
+| **PHP_VERSION**    | PHP version to use (e.g. `php85`, `php84`, `php83`).                    |
 | **PHP_IMAGE_TAG**  | Optional Docker image tag override for PHP. Leave empty to use default. |
 | **ENABLE_XDEBUG**  | Enables Xdebug extension when set to `true`.                            |
 | **NODE_VERSION**   | Node Docker image tag for the optional `lamp_node` container.           |
@@ -125,7 +125,7 @@ docker compose up -d lamp_web
 
 | Variable | Description |
 |-----------|--------------|
-| **PHP_VERSION** | Defines the PHP version to use (e.g. `php83`, `php82`). Determines which base image and configuration files are applied. |
+| **PHP_VERSION** | Defines the PHP version to use (e.g. `php85`, `php84`, `php83`). Determines which base image and configuration files are applied. |
 | **PHP_IMAGE_TAG** | Optional tag to specify a custom PHP image variant. Leave empty to use the default tag. |
 
 **Note:**  
@@ -208,7 +208,7 @@ Then restart the PHP container for the change to take effect:
 | Variable | Description |
 |-----------|--------------|
 | **SQL_ENGINE** | Database engine to use — `mysql` or `mariadb`. Determines which image and configuration files are applied. |
-| **SQL_VERSION** | Version of the selected SQL engine (e.g. `8.4` for MySQL or `11.3` for MariaDB). |
+| **SQL_VERSION** | Version of the selected SQL engine (e.g. `8.4` for MySQL or `12.3` for MariaDB). |
 | **SQL_PORT** | Host port mapped to the database container’s internal port (default `3306`). |
 | **SQL_ROOT_PWD** | Root password for the database server. Used for administration and phpMyAdmin access. |
 | **SQL_DATA_PATH** | Absolute path on the host where database data is stored persistently. Example: `/home/your-user/db-data`. |
@@ -517,7 +517,7 @@ based on your domain mappings in:
 
 **Run from the project root:**
 
-    ./scripts/generate-ssl.sh
+    ./scripts/generate-multidomain-ssl.sh
 
 The script:
 - Collects all domains from the project config files.
@@ -627,7 +627,7 @@ Each optional container is part of a **Docker Compose profile**, allowing select
 | `make up-pma` | Starts phpMyAdmin (`lamp_pma`). |
 | `make up-redis` | Starts Redis server (`lamp_redis`). |
 | `make up-mailpit` | Starts Mailpit email testing tool (`lamp_mailpit`). |
-| `make up-all` | Starts all services: web, db, phpMyAdmin, Redis, and Mailpit. |
+| `make up-all` | Starts all services: web, db, Node.js, phpMyAdmin, Redis, and Mailpit. |
 
 ### Building and Switching Versions
 
@@ -645,6 +645,7 @@ Each optional container is part of a **Docker Compose profile**, allowing select
 | `make logs` | Streams logs for all containers. |
 | `make logs-web` | Shows Apache web container logs. |
 | `make logs-db` | Shows SQL container logs. |
+| `make logs-node` | Shows Node.js container logs. |
 | `make logs-pma` | Shows phpMyAdmin logs. |
 | `make logs-redis` | Shows Redis logs. |
 | `make logs-mailpit` | Shows Mailpit logs. |
@@ -701,7 +702,7 @@ The Makefile is optional but highly recommended — it provides a fast and consi
 ## Additional Shared Mounts
 
 
-The PHP (Apache) container supports up to **five optional shared mounts**,  
+The PHP (Apache) container supports up to **ten optional shared mounts**,
 allowing you to link extra folders from your host system directly into the container.  
 This is useful for sharing configuration files, assets, or common project data between services or containers.
 
@@ -712,11 +713,16 @@ In the `lamp_web` service, the following mounts are defined:
 
     lamp_web:
       volumes:
+        - ${EXTRA_SHARED_0:-/dev/null}:/mnt/shared0
         - ${EXTRA_SHARED_1:-/dev/null}:/mnt/shared1
         - ${EXTRA_SHARED_2:-/dev/null}:/mnt/shared2
         - ${EXTRA_SHARED_3:-/dev/null}:/mnt/shared3
         - ${EXTRA_SHARED_4:-/dev/null}:/mnt/shared4
         - ${EXTRA_SHARED_5:-/dev/null}:/mnt/shared5
+        - ${EXTRA_SHARED_6:-/dev/null}:/mnt/shared6
+        - ${EXTRA_SHARED_7:-/dev/null}:/mnt/shared7
+        - ${EXTRA_SHARED_8:-/dev/null}:/mnt/shared8
+        - ${EXTRA_SHARED_9:-/dev/null}:/mnt/shared9
 
 If a variable is **unset or empty**, the mount points fallback to `/dev/null`,  
 effectively disabling the share.
@@ -726,8 +732,8 @@ effectively disabling the share.
 
 Edit your `.env` file and define one or more paths:
 
-    EXTRA_SHARED_1=/home/user/shared/config
-    EXTRA_SHARED_2=/home/user/shared/assets
+    EXTRA_SHARED_0=/home/user/shared/config
+    EXTRA_SHARED_1=/home/user/shared/assets
 
 Then restart the container to apply the changes:
 
@@ -735,8 +741,8 @@ Then restart the container to apply the changes:
 
 These paths will appear inside the container as:
 
-    /mnt/shared1  →  /home/user/shared/config
-    /mnt/shared2  →  /home/user/shared/assets
+    /mnt/shared0  →  /home/user/shared/config
+    /mnt/shared1  →  /home/user/shared/assets
 
 You can verify the mounted volumes inside the container:
 
@@ -747,11 +753,11 @@ You can verify the mounted volumes inside the container:
 
 | Purpose | Example Path | Mounted To |
 |----------|---------------|------------|
-| Shared configuration or environment files | `/home/user/shared/config` | `/mnt/shared1` |
-| Common uploads or storage directory | `/home/user/shared/storage` | `/mnt/shared2` |
-| Composer cache or vendor mirror | `/home/user/.composer` | `/mnt/shared3` |
-| Shared PHP libraries | `/home/user/php-libs` | `/mnt/shared4` |
-| Integration with external service | `/home/user/tools` | `/mnt/shared5` |
+| Shared configuration or environment files | `/home/user/shared/config` | `/mnt/shared0` |
+| Common uploads or storage directory | `/home/user/shared/storage` | `/mnt/shared1` |
+| Composer cache or vendor mirror | `/home/user/.composer` | `/mnt/shared2` |
+| Shared PHP libraries | `/home/user/php-libs` | `/mnt/shared3` |
+| Integration with external service | `/home/user/tools` | `/mnt/shared4` |
 
 
 ### Notes

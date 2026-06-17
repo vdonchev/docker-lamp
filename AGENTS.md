@@ -7,6 +7,9 @@ This repo is Dockerized local infrastructure (LAMP + optional services), not a s
 - Core orchestration: `docker-compose.yml` + `Makefile`.
 - Main mutable logic: Bash/PowerShell scripts in `scripts/`.
 - Optional containers: `lamp_node`, `lamp_redis`, `lamp_pma`, `lamp_mailpit`.
+- Current PHP image directories: `php56`, `php70`-`php74`, and `php80`-`php85`.
+- Current default image settings: Compose falls back to PHP `php84`, MySQL `8.4`, and Node `24`.
+- `lamp_web` supports optional host mounts `EXTRA_SHARED_0` through `EXTRA_SHARED_9` at `/mnt/shared0` through `/mnt/shared9`.
 - Repo PHP (`app/index.php`) is only a placeholder landing page.
 - Most application code normally lives in mounted `${WEB_ROOT}`.
 
@@ -36,9 +39,11 @@ make up-node
 make up-pma
 make up-redis
 make up-mailpit
+make up-all
 make status
 make logs-web
 make logs-db
+make logs-node
 ```
 
 Direct Compose equivalents (when Make is unavailable):
@@ -49,6 +54,7 @@ docker compose --profile with-node up -d lamp_node
 docker compose --profile with-pma up -d lamp_pma
 docker compose --profile with-redis up -d lamp_redis
 docker compose --profile with-mailpit up -d lamp_mailpit
+COMPOSE_PROFILES=with-redis,with-pma,with-mailpit,with-node docker compose up -d lamp_web lamp_db lamp_node lamp_redis lamp_pma lamp_mailpit
 ```
 
 ## Build, Lint, and Test Commands
@@ -71,6 +77,10 @@ bash -n scripts/generate-vhosts.sh
 bash -n scripts/generate-multidomain-ssl.sh
 bash -n scripts/entrypoint/web.sh
 bash -n scripts/entrypoint/sql.sh
+
+# Optional when PowerShell is available
+pwsh -NoProfile -Command "[scriptblock]::Create((Get-Content -Raw scripts/init.ps1)) | Out-Null"
+pwsh -NoProfile -Command "[scriptblock]::Create((Get-Content -Raw scripts/generate-multidomain-ssl.ps1)) | Out-Null"
 
 # Optional if shellcheck is installed
 shellcheck scripts/**/*.sh

@@ -1,6 +1,6 @@
-.PHONY: check-env status init up up-pma up-redis up-mailpit up-all build build-no-cache switch-php \
-	restart restart-all down logs logs-web logs-php logs-db logs-pma logs-mailpit logs-redis clean-log \
-	cli-db cert shell shell-db fix-perms help
+.PHONY: check-env status init up up-node up-pma up-redis up-mailpit up-all build build-no-cache switch-php \
+	rebuild restart restart-all down logs logs-web logs-php logs-db logs-node logs-pma logs-mailpit logs-redis clean-log \
+	cli-db cert shell shell-db shell-node fix-perms help
 
 .DEFAULT_GOAL := help
 
@@ -38,8 +38,8 @@ up-redis: check-env ## Starts Redis (redis)
 up-mailpit: check-env ## Starts Mailpit (mailpit)
 	@COMPOSE_PROFILES=with-mailpit docker compose up -d lamp_mailpit
 
-up-all: check-env ## Starts all services: Apache (web), SQL (db), phpMyAdmin (pma), Redis (redis), Mailpit (mailpit)
-	@COMPOSE_PROFILES=with-redis,with-pma,with-mailpit docker compose up -d lamp_web lamp_db lamp_redis lamp_pma lamp_mailpit
+up-all: check-env ## Starts all services: Apache (web), SQL (db), Node, phpMyAdmin (pma), Redis (redis), Mailpit (mailpit)
+	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose up -d lamp_web lamp_db lamp_node lamp_redis lamp_pma lamp_mailpit
 
 build: ## Builds all containers using cache
 	@docker compose build
@@ -51,7 +51,7 @@ switch-php: ## Rebuilds Apache (web) container after PHP version change
 	@docker compose build lamp_web
 	@$(MAKE) restart
 
-rebuild: ## An alias to swtch-php make command
+rebuild: ## An alias to switch-php make command
 	@$(MAKE) switch-php
 
 restart: ## Stops and restarts core containers Apache (web) and SQL (db)
@@ -60,7 +60,7 @@ restart: ## Stops and restarts core containers Apache (web) and SQL (db)
 
 restart-all: ## Stops and restarts all containers
 	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose down --volumes --remove-orphans
-	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose up -d lamp_web lamp_db lamp_pma lamp_redis lamp_mailpit
+	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose up -d lamp_web lamp_db lamp_node lamp_pma lamp_redis lamp_mailpit
 
 down: ## Stops and removes all containers, volumes, and orphans
 	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose down --volumes --remove-orphans
