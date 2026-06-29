@@ -48,6 +48,7 @@ generate_http_vhost() {
     </IfModule>
 
     AddDefaultCharset UTF-8
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=\$1
 
     Header set X-Environment "Development"
 
@@ -78,6 +79,7 @@ generate_https_vhost() {
     </IfModule>
 
     AddDefaultCharset UTF-8
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=\$1
 
     Header set X-Environment "Development"
 
