@@ -96,6 +96,7 @@ Copy the appropriate one to `.env` in the project root.
 |--------------------|-------------------------------------------------------------------------|
 | **PHP_VERSION**    | PHP version to use (e.g. `php85`, `php84`, `php83`).                    |
 | **PHP_IMAGE_TAG**  | Optional Docker image tag override for PHP. Leave empty to use default. |
+| **WP_CLI_VERSION** | WP-CLI version installed in PHP 8+ images (default `2.12.0`).            |
 | **ENABLE_XDEBUG**  | Enables Xdebug extension when set to `true`.                            |
 | **NODE_VERSION**   | Node Docker image tag for the optional `lamp_node` container.           |
 | **SQL_ENGINE**     | Database engine (`mysql` or `mariadb`).                                 |
@@ -111,7 +112,7 @@ Copy the appropriate one to `.env` in the project root.
 | **GIT_USER_EMAIL** | Git email injected into the container for commits.                      |
 
 **Note:**  
-Changes to `PHP_VERSION`, `PHP_IMAGE_TAG`, or `GIT_USER_*` variables **require rebuilding** the lamp_web image,  
+Changes to `PHP_VERSION`, `PHP_IMAGE_TAG`, `WP_CLI_VERSION`, or `GIT_USER_*` variables **require rebuilding** the lamp_web image,
 as they are used during the build process:
 ```bash
 docker compose build lamp_web
@@ -127,6 +128,7 @@ docker compose up -d lamp_web
 |-----------|--------------|
 | **PHP_VERSION** | Defines the PHP version to use (e.g. `php85`, `php84`, `php83`). Determines which base image and configuration files are applied. |
 | **PHP_IMAGE_TAG** | Optional tag to specify a custom PHP image variant. Leave empty to use the default tag. |
+| **WP_CLI_VERSION** | WP-CLI version installed in PHP 8+ images. Defaults to `2.12.0`. |
 
 **Note:**  
 Changes to these `.env` variables **require rebuilding** the lamp_web image because they define the base PHP environment:
@@ -162,6 +164,33 @@ This is optional — by default, the image tag is derived automatically from `PH
 **Note:**  
 Changes to these `.env` variables **require rebuilding** the lamp_web image,  
 as they determine the base image and build-time configuration:
+
+```bash
+docker compose up -d --build lamp_web
+```
+
+### WP-CLI
+
+[WP-CLI](https://wp-cli.org/) is preinstalled in all PHP 8+ web images at `/usr/local/bin/wp`, which is included in the container's `PATH`.
+Run it directly inside the web container:
+
+```bash
+docker compose exec lamp_web wp --info
+docker compose exec lamp_web wp core version
+```
+
+From an interactive shell, use the `wp` command directly:
+
+```bash
+make shell
+wp --info
+```
+
+The default version is `2.12.0`. To use another release, set `WP_CLI_VERSION` in `.env` and rebuild the web image:
+
+```dotenv
+WP_CLI_VERSION=2.11.0
+```
 
 ```bash
 docker compose up -d --build lamp_web
