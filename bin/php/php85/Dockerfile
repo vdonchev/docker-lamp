@@ -52,6 +52,13 @@ COPY config/php/xdebug/xdebug.legacy.ini /usr/local/etc/php/xdebug.legacy.ini
 # Install Composer binary
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Install WP-CLI
+ARG WP_CLI_VERSION=2.12.0
+RUN curl -fsSL "https://github.com/wp-cli/wp-cli/releases/download/v${WP_CLI_VERSION}/wp-cli-${WP_CLI_VERSION}.phar" \
+    -o /usr/local/bin/wp \
+    && chmod +x /usr/local/bin/wp \
+    && wp --info
+
 # Install Symfony CLI
 RUN curl -sS https://get.symfony.com/cli/installer | bash \
     && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony

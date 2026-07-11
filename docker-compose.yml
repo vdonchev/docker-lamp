@@ -5,6 +5,7 @@ services:
       dockerfile: bin/php/${PHP_VERSION:-php84}/Dockerfile
       args:
         PHP_IMAGE_TAG: ${PHP_IMAGE_TAG}
+        WP_CLI_VERSION: ${WP_CLI_VERSION:-2.12.0}
         GIT_USER_NAME: ${GIT_USER_NAME}
         GIT_USER_EMAIL: ${GIT_USER_EMAIL}
     ports:
