@@ -47,16 +47,19 @@ build: ## Builds all containers using cache
 build-no-cache: ## Builds all containers without cache
 	@docker compose build --no-cache
 
-switch-php: ## Rebuilds Apache (web) container after PHP version change
-	@docker compose build lamp_web
-	@$(MAKE) restart
+switch-php: ## Rebuilds Apache (web) while preserving the running services
+	@services="$$(docker compose ps --services --filter status=running)"; \
+		if [ -z "$$services" ]; then services="lamp_web lamp_db"; fi; \
+		docker compose build lamp_web && \
+		docker compose up -d $$services
 
 rebuild: ## An alias to switch-php make command
 	@$(MAKE) switch-php
 
-restart: ## Stops and restarts core containers Apache (web) and SQL (db)
-	@$(MAKE) down
-	@$(MAKE) up
+restart: ## Restarts the currently running services
+	@services="$$(docker compose ps --services --filter status=running)"; \
+		if [ -z "$$services" ]; then services="lamp_web lamp_db"; fi; \
+		docker compose restart $$services
 
 restart-all: ## Stops and restarts all containers
 	@COMPOSE_PROFILES=$(ALL_PROFILES) docker compose down --volumes --remove-orphans

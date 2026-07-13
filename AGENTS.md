@@ -40,6 +40,8 @@ make up-pma
 make up-redis
 make up-mailpit
 make up-all
+make restart
+make rebuild
 make status
 make logs-web
 make logs-db
@@ -66,7 +68,10 @@ Validation = compose config check + script syntax checks + smoke startup.
 make build
 make build-no-cache
 make switch-php
+make rebuild
 ```
+
+`make restart` restarts exactly the currently running services, including optional profile services. `make switch-php` and `make rebuild` rebuild `lamp_web` while preserving that running service set. These targets fall back to `lamp_web` and `lamp_db` when no services are running and do not remove volumes.
 
 ### Lint/Validation
 ```bash
@@ -166,6 +171,7 @@ Follow existing repo patterns first. Keep edits minimal, focused, and reversible
 - Fail fast on unsupported or malformed config.
 - Keep startup scripts deterministic and idempotent.
 - Be explicit about destructive actions (`make down` removes volumes/orphans).
+- Keep `make restart`, `make switch-php`, and `make rebuild` non-destructive and preserve optional services that are already running.
 
 ## Agent Workflow
 - Before editing behavior, read `Makefile`, `docker-compose.yml`, and touched scripts.

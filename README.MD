@@ -642,9 +642,11 @@ to see all available commands with descriptions.
 | `make init` | Initializes the project environment (`scripts/init.sh` on Linux/macOS, `init.ps1` on Windows). |
 | `make up` | Starts core containers: Apache (`lamp_web`) and SQL (`lamp_db`). |
 | `make down` | Stops and removes all containers, volumes, and orphaned networks. |
-| `make restart` | Restarts core containers (web + db). |
+| `make restart` | Restarts the services that are currently running, including optional profile services. |
 | `make restart-all` | Restarts all containers, including optional services. |
 | `make status` | Displays running containers and their states. |
+
+`make restart` preserves the active service set and does not remove containers or volumes. If no services are running, it starts the core `lamp_web` and `lamp_db` services.
 
 ### Starting Optional Services
 
@@ -664,8 +666,10 @@ Each optional container is part of a **Docker Compose profile**, allowing select
 |----------|-------------|
 | `make build` | Builds all containers using cache. |
 | `make build-no-cache` | Builds all containers without using cache. |
-| `make switch-php` | Rebuilds `lamp_web` after changing PHP version or tag in `.env`. |
-| `make rebuild` | Rebuilds and restarts all containers. Essential after changing `.env` build args. |
+| `make switch-php` | Rebuilds `lamp_web` after changing PHP version or tag in `.env`, while preserving all currently running services. |
+| `make rebuild` | Alias for `make switch-php`; rebuilds `lamp_web` while preserving all currently running services. |
+
+Both rebuild commands fall back to starting `lamp_web` and `lamp_db` when no services are running. Optional services that were already running remain running after the web container is rebuilt.
 
 ### Logs and Debugging
 
