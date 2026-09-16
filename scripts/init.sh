@@ -73,14 +73,8 @@ for file in "${!files_to_create[@]}"; do
   fi
 done
 
-# Generate SSL certificate if needed
-CERT="config/apache/ssl/dev.crt"
-KEY="config/apache/ssl/dev.key"
-if [ ! -f "$CERT" ] || [ ! -f "$KEY" ]; then
-  ./scripts/generate-multidomain-ssl.sh
-  check "SSL certificate generated"
-else
-  check "SSL certificate already exists"
-fi
+# Validate the persistent CA and issue a current leaf for configured domains.
+./scripts/generate-multidomain-ssl.sh
+check "local CA validated and SSL certificate generated"
 
 echo "Initialization complete!"

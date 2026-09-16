@@ -409,12 +409,11 @@ If local SSL certificates are present in:
     config/apache/ssl/dev.crt
     config/apache/ssl/dev.key
 
-both `localhost` and `app.test` will also be available over HTTPS:
+configured domains such as `app.test` will also be available over HTTPS:
 
-    https://localhost
     https://app.test
 
-This provides secure local access without additional configuration.  
+`localhost` is not added automatically; only domains in the project domain files are included in the certificate.
 ➡ **Read more:** see the [SSL Certificates](#ssl-certificates) for details on how to generate and configure local certificates.
 
 ### 2. Multi-Project Mode
@@ -524,100 +523,84 @@ These files are regenerated automatically each time the container starts.
 ## SSL Certificates
 
 ---
-The LAMP stack supports secure local HTTPS for all configured domains.  
-Certificates are generated automatically using scripts provided in the repository — one for **Linux/macOS** and one for **Windows**.
+The stack creates a persistent local development CA and uses it to sign a replaceable multi-domain server certificate. Trust the CA once; adding domains or renewing the server certificate does not require reinstalling host trust.
 
-Generated certificates are stored in:
+Private signing material stays on the host and is ignored by Git:
 
+    var/local-ca/dev-ca.crt
+    var/local-ca/dev-ca.key
+    var/local-ca/dev-ca.srl
+
+Apache receives only the public CA copy and server certificate files:
+
+    config/apache/ssl/dev-ca.crt
     config/apache/ssl/dev.crt
     config/apache/ssl/dev.key
 
-Once created, all local domains (such as `localhost` and `app.test`) can be accessed securely via:
+The CA key is never mounted into `lamp_web`. At startup, `lamp_web` installs only `dev-ca.crt` into its system trust store so PHP and cURL can verify local HTTPS services normally.
 
-    https://localhost
-    https://app.test
+### Generate or Renew Certificates
 
-### 1. Generating SSL on Linux or macOS
+Add mappings to `config/projects/domains.local.conf`, then run:
 
-The included shell script automatically builds a multi-domain certificate  
-based on your domain mappings in:
+    make cert
 
-- `config/projects/domains.local.conf`
+The first run creates the persistent CA. Every run issues a fresh server certificate containing all valid, deduplicated domains from `domains.conf` and `domains.local.conf`. If `lamp_web` is running, `make cert` restarts it automatically.
 
-**Run from the project root:**
+Without Make, use the platform script and restart the container:
 
     ./scripts/generate-multidomain-ssl.sh
-
-The script:
-- Collects all domains from the project config files.
-- Creates a self-signed certificate valid for 10 years.
-- Supports multiple SAN (Subject Alternative Name) entries for all defined domains.
-- Saves the result in `config/apache/ssl/`.
-
-If `openssl` is not installed, install it via your package manager:
-
-- **Ubuntu/Debian:**
-
-      sudo apt install openssl
-
-- **macOS (Homebrew):**
-
-      brew install openssl
-
-Once generated, restart the web container:
-
     docker compose restart lamp_web
 
-### 2. Generating SSL on Windows
+Native Windows PowerShell:
 
-Windows users can run the PowerShell version:
-
-    scripts\generate-multidomain-ssl.ps1
-
-**Requirements:**
-- PowerShell 5.0 or newer.
-- OpenSSL 3+ available in your system `PATH`.
-
-The script:
-- Reads all domains from the same config files.
-- Automatically builds a self-signed multi-domain certificate.
-- Stores it as:
-
-      config\apache\ssl\dev.crt
-      config\apache\ssl\dev.key
-
-After generation, restart your web container:
-
+    & .\scripts\generate-multidomain-ssl.ps1
     docker compose restart lamp_web
 
-### 3. Installing the Certificate (Optional but Recommended)
+OpenSSL must be available in `PATH`. The generated leaf uses SAN names and is valid only for configured domains; `localhost` is not included unless explicitly mapped.
 
-To remove browser HTTPS warnings, you can trust the generated certificate locally.
+Verify the CA, server purpose, and matching private key with:
 
-#### Linux
-    sudo cp config/apache/ssl/dev.crt /usr/local/share/ca-certificates/dev.crt
-    sudo update-ca-certificates
+    make cert-verify
 
-#### macOS
-    sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain config/apache/ssl/dev.crt
+Native Windows can verify the certificate chain with:
 
-#### Windows
-1. Double-click `dev.crt`
-2. Click **Install Certificate**
-3. Choose **Local Machine**
-4. Place it in **Trusted Root Certification Authorities**
+    openssl verify -CAfile .\config\apache\ssl\dev-ca.crt -purpose sslserver .\config\apache\ssl\dev.crt
 
-After installation, restart your browser to apply trust settings.
+### Trust the CA on the Host
 
-### 4. Regeneration
+The trust helpers validate the CA, display its SHA256 fingerprint, and require typed confirmation. They never install the server leaf certificate.
 
-You can regenerate the certificate at any time if:
-- New domains are added to `domains.local.conf`.
-- The existing certificate expires or becomes invalid.
+Linux, macOS, or WSL (WSL installs into Windows Current User trust):
 
-Simply rerun the same script, install generated certificate and restart the container. 
+    make cert-trust-host
 
-    docker compose restart lamp_web
+Automated Linux trust uses Debian/Ubuntu-style `update-ca-certificates`. Other distributions receive an explicit error and should install `config/apache/ssl/dev-ca.crt` with their distribution's CA trust tooling.
+
+Native Windows PowerShell:
+
+    & .\scripts\manage-windows-ca-trust.ps1 -Action install -CertificatePath .\config\apache\ssl\dev-ca.crt
+
+Restart open browsers after changing trust. Firefox may use its own certificate store depending on its configuration; enable enterprise roots or import `config/apache/ssl/dev-ca.crt` into Firefox Authorities if it still warns.
+
+To remove this exact CA:
+
+    make cert-untrust-host
+
+Native Windows PowerShell:
+
+    & .\scripts\manage-windows-ca-trust.ps1 -Action remove -CertificatePath .\config\apache\ssl\dev-ca.crt
+
+### CA Rotation
+
+Normal certificate generation never rotates the CA. If rotation is deliberately required:
+
+1. Remove the old CA from host trust with `make cert-untrust-host`.
+2. Run `make cert-rotate-ca` and type the requested confirmation.
+3. Trust the new CA with `make cert-trust-host`.
+4. Restart open browsers.
+
+On native Windows, use the PowerShell trust commands above before and after `& .\scripts\generate-multidomain-ssl.ps1 -RotateCa`.
 
 ## Makefile Reference
 ***Important note:***  
@@ -698,7 +681,11 @@ Both rebuild commands fall back to starting `lamp_web` and `lamp_db` when no ser
 | Command | Description |
 |----------|-------------|
 | `make clean-log` | Deletes and recreates the `./var/log` directory. |
-| `make cert` | Generates a new local multi-domain SSL certificate (see [SSL Certificates](#ssl-certificates)). |
+| `make cert` | Generates a CA-signed multi-domain certificate and restarts `lamp_web` if running. |
+| `make cert-verify` | Verifies the local CA, server certificate purpose, and private key. |
+| `make cert-trust-host` | Installs the CA into Linux/macOS host trust or Windows trust from WSL. |
+| `make cert-untrust-host` | Removes the exact Docker LAMP CA from host trust. |
+| `make cert-rotate-ca` | Explicitly rotates the CA after confirmation. |
 | `make fix-perms` | Reapplies executable permissions to all shell scripts. |
 
 ### Help Command
@@ -721,10 +708,9 @@ Both rebuild commands fall back to starting `lamp_web` and `lamp_db` when no ser
 
     make switch-php
 
-**Regenerate SSL and restart web container:**
+**Regenerate SSL and restart the web container if it is running:**
 
     make cert
-    docker compose restart lamp_web
 
 **Clean logs:**
 

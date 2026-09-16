@@ -10,6 +10,8 @@
 
 /var/db/*
 
+/var/local-ca/
+
 /config/apache/ssl/*
 !/config/apache/ssl/.gitkeep
 

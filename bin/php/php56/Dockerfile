@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nano \
     unzip \
     curl \
+    ca-certificates \
     libcurl4-openssl-dev \
     libxml2-dev \
     libzip-dev \

@@ -1,6 +1,6 @@
 .PHONY: check-env status init up up-node up-pma up-redis up-mailpit up-all build build-no-cache switch-php \
 	rebuild restart restart-all down logs logs-web logs-php logs-db logs-node logs-pma logs-mailpit logs-redis clean-log \
-	cli-db cert shell shell-db shell-node fix-perms help
+	cli-db cert cert-verify cert-rotate-ca cert-trust-host cert-untrust-host shell shell-db shell-node fix-perms help
 
 .DEFAULT_GOAL := help
 
@@ -100,8 +100,34 @@ clean-log: ## Fully deletes and recreates ./var/log directory
 cli-db: ## Opens SQL CLI inside the SQL (db) container
 	docker compose exec -it lamp_db mysql -u root -p
 
-cert: ## Generates a local multi-domain self-signed SSL certificate
-	./scripts/generate-multidomain-ssl.sh
+cert: ## Generates a CA-signed local certificate and restarts web if running
+	@./scripts/generate-multidomain-ssl.sh
+	@if command -v docker >/dev/null 2>&1 && docker compose ps --services --filter status=running | grep -qx lamp_web; then \
+		docker compose restart lamp_web; \
+	else \
+		echo "lamp_web is not running; certificate generated without a restart."; \
+	fi
+
+cert-verify: ## Verifies the local CA, leaf certificate, and private key
+	@openssl verify -CAfile config/apache/ssl/dev-ca.crt -purpose sslserver config/apache/ssl/dev.crt
+	@cert_key="$$(openssl x509 -in config/apache/ssl/dev.crt -pubkey -noout | openssl pkey -pubin -outform DER 2>/dev/null | openssl dgst -sha256)"; \
+		private_key="$$(openssl pkey -in config/apache/ssl/dev.key -pubout -outform DER 2>/dev/null | openssl dgst -sha256)"; \
+		[ "$$cert_key" = "$$private_key" ] || { echo "Certificate and private key do not match." >&2; exit 1; }
+	@echo "Local CA and server certificate are valid."
+
+cert-rotate-ca: ## Explicitly rotates the local CA after confirmation
+	@./scripts/generate-multidomain-ssl.sh --rotate-ca
+	@if command -v docker >/dev/null 2>&1 && docker compose ps --services --filter status=running | grep -qx lamp_web; then \
+		docker compose restart lamp_web; \
+	else \
+		echo "lamp_web is not running; CA rotated without a restart."; \
+	fi
+
+cert-trust-host: ## Trusts the local CA on Linux, macOS, or Windows through WSL
+	@./scripts/manage-host-ca-trust.sh install
+
+cert-untrust-host: ## Removes the exact local CA from host trust
+	@./scripts/manage-host-ca-trust.sh remove
 
 shell: ## Opens a bash shell inside the Apache (web) container
 	docker compose exec -it lamp_web bash

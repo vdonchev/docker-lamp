@@ -70,18 +70,6 @@ foreach ($file in $FilesToCreate.Keys) {
   }
 }
 
-# SSL certificate
-$Cert = "config/apache/ssl/dev.crt"
-$Key = "config/apache/ssl/dev.key"
-
-if (-not (Test-Path $Cert) -or -not (Test-Path $Key)) {
-  if (Get-Command "openssl" -ErrorAction SilentlyContinue) {
-    & "./scripts/generate-multidomain-ssl.ps1"
-    Check "SSL certificate generated"
-  } else {
-    Write-Host "[WARN] OpenSSL not found. Skipping SSL certificate generation."
-    Write-Host "       Install OpenSSL or run the generator manually later."
-  }
-} else {
-  Check "SSL certificate already exists"
-}
+# Validate the persistent CA and issue a current leaf for configured domains.
+& "$PSScriptRoot\generate-multidomain-ssl.ps1"
+Check "local CA validated and SSL certificate generated"
