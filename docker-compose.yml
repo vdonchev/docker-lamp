@@ -2,10 +2,10 @@ services:
   lamp_web:
     build:
       context: .
-      dockerfile: bin/php/${PHP_VERSION:-php84}/Dockerfile
+      dockerfile: bin/php/${PHP_VERSION:-php85}/Dockerfile
       args:
         PHP_IMAGE_TAG: ${PHP_IMAGE_TAG}
-        WP_CLI_VERSION: ${WP_CLI_VERSION:-2.12.0}
+        WP_CLI_VERSION: ${WP_CLI_VERSION:-latest}
         GIT_USER_NAME: ${GIT_USER_NAME}
         GIT_USER_EMAIL: ${GIT_USER_EMAIL}
     ports:
@@ -64,7 +64,7 @@ services:
     profiles:
       - with-node
   lamp_redis:
-    image: redis
+    image: redis:${REDIS_VERSION:-latest}
     volumes:
       - redis-data:/data
     ports:
@@ -76,7 +76,7 @@ services:
     networks:
       - lamp
   lamp_pma:
-    image: phpmyadmin
+    image: phpmyadmin:${PMA_VERSION:-latest}
     restart: always
     ports:
       - ${PMA_PORT:-8080}:80
@@ -93,7 +93,7 @@ services:
     networks:
       - lamp
   lamp_mailpit:
-    image: axllent/mailpit
+    image: axllent/mailpit:${MAILPIT_VERSION:-latest}
     ports:
       - "8025:8025"     # Web UI
       - "1025:1025"     # SMTP

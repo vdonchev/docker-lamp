@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     imagemagick libmagickwand-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install php extensions
+# OPcache is provided by the official PHP 8.5 base image.
+# Install additional php extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install  \
     curl \
@@ -54,9 +55,13 @@ COPY config/php/xdebug/xdebug.legacy.ini /usr/local/etc/php/xdebug.legacy.ini
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Install WP-CLI
-ARG WP_CLI_VERSION=2.12.0
-RUN curl -fsSL "https://github.com/wp-cli/wp-cli/releases/download/v${WP_CLI_VERSION}/wp-cli-${WP_CLI_VERSION}.phar" \
-    -o /usr/local/bin/wp \
+ARG WP_CLI_VERSION=latest
+RUN if [ -z "${WP_CLI_VERSION}" ] || [ "${WP_CLI_VERSION}" = "latest" ]; then \
+        WP_CLI_URL="https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"; \
+    else \
+        WP_CLI_URL="https://github.com/wp-cli/wp-cli/releases/download/v${WP_CLI_VERSION}/wp-cli-${WP_CLI_VERSION}.phar"; \
+    fi \
+    && curl -fsSL "${WP_CLI_URL}" -o /usr/local/bin/wp \
     && chmod +x /usr/local/bin/wp \
     && wp --info
 

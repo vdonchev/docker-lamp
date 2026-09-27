@@ -12,7 +12,7 @@ if [ "$SQL_ENGINE" != "mysql" ] && [ "$SQL_ENGINE" != "mariadb" ]; then
     exit 1
 fi
 
-# Normalize version: keep only major.minor (e.g. 8.4, 11.4)
+# Normalize version: keep only major.minor (e.g. 8.4, 12.3)
 SQL_VERSION_RAW="${SQL_VERSION:-8.4}"
 SQL_VERSION_MAJOR_MINOR=$(echo "$SQL_VERSION_RAW" | awk -F. '{print $1"."$2}')
 SQL_VERSION_CLEAN=$(echo "$SQL_VERSION_MAJOR_MINOR" | tr -d '.')
@@ -64,4 +64,3 @@ else
         exec docker-entrypoint.sh mysqld --datadir="$DATADIR"
     fi
 fi
-

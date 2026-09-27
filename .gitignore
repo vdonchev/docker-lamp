@@ -28,4 +28,4 @@
 !/config/projects/domains.conf
 
 /config/php/custom/*
-!/config/php/custom/install.example.sh
+!/config/php/custom/install.example

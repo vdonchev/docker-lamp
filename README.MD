@@ -96,9 +96,12 @@ Copy the appropriate one to `.env` in the project root.
 |--------------------|-------------------------------------------------------------------------|
 | **PHP_VERSION**    | PHP version to use (e.g. `php85`, `php84`, `php83`).                    |
 | **PHP_IMAGE_TAG**  | Optional Docker image tag override for PHP. Leave empty to use default. |
-| **WP_CLI_VERSION** | WP-CLI version installed in PHP 8+ images (default `2.12.0`).            |
+| **WP_CLI_VERSION** | Optional WP-CLI version pin, e.g. `2.12.0` (default `latest`).           |
 | **ENABLE_XDEBUG**  | Enables Xdebug extension when set to `true`.                            |
 | **NODE_VERSION**   | Node Docker image tag for the optional `lamp_node` container.           |
+| **REDIS_VERSION**  | Optional Redis image tag, e.g. `8.10` (default `latest`).                |
+| **PMA_VERSION**    | Optional phpMyAdmin image tag, e.g. `5.2.3` (default `latest`).          |
+| **MAILPIT_VERSION** | Optional Mailpit image tag, e.g. `v1.31.3` (default `latest`).           |
 | **SQL_ENGINE**     | Database engine (`mysql` or `mariadb`).                                 |
 | **SQL_VERSION**    | Database version (e.g. `8.4` for MySQL).                                |
 | **SQL_PORT**       | Host port mapped to the database container.                             |
@@ -108,8 +111,8 @@ Copy the appropriate one to `.env` in the project root.
 | **HTTP_PORT**      | HTTP port exposed on the host (default `80`).                           |
 | **HTTPS_PORT**     | HTTPS port exposed on the host (default `443`).                         |
 | **PMA_PORT**       | phpMyAdmin port on the host (default `8080`).                           |
-| **GIT_USER_NAME**  | Git username injected into the container for commits.                   |
-| **GIT_USER_EMAIL** | Git email injected into the container for commits.                      |
+| **GIT_USER_NAME**  | Git username injected into PHP 7+ containers for commits.                |
+| **GIT_USER_EMAIL** | Git email injected into PHP 7+ containers for commits.                   |
 
 **Note:**  
 Changes to `PHP_VERSION`, `PHP_IMAGE_TAG`, `WP_CLI_VERSION`, or `GIT_USER_*` variables **require rebuilding** the lamp_web image,
@@ -128,7 +131,9 @@ docker compose up -d lamp_web
 |-----------|--------------|
 | **PHP_VERSION** | Defines the PHP version to use (e.g. `php85`, `php84`, `php83`). Determines which base image and configuration files are applied. |
 | **PHP_IMAGE_TAG** | Optional tag to specify a custom PHP image variant. Leave empty to use the default tag. |
-| **WP_CLI_VERSION** | WP-CLI version installed in PHP 8+ images. Defaults to `2.12.0`. |
+| **WP_CLI_VERSION** | Optional WP-CLI version pin for PHP 8+ images. Leave empty to install the latest stable release. |
+
+PHP 8.2 through 8.5 are supported upstream. Older image directories remain available only for legacy projects and should not be used for new development.
 
 **Note:**  
 Changes to these `.env` variables **require rebuilding** the lamp_web image because they define the base PHP environment:
@@ -140,23 +145,25 @@ docker compose up -d lamp_web
 
 ### PHP Image Tag
 
-The `PHP_IMAGE_TAG` variable in `.env` allows you to lock the **exact** PHP image version used by the Apache container.  
+The `PHP_IMAGE_TAG` variable in `.env` allows you to select a PHP patch-level image tag for the Apache container.
 This is optional — by default, the image tag is derived automatically from `PHP_VERSION`.
 
 **How it works:**
 - If `PHP_IMAGE_TAG` is **empty**, Docker uses the base image matching your major/minor PHP version.  
   Example:  
-  PHP_VERSION=php84  
-  → resolves to image `php:8.4-apache`
+  PHP_VERSION=php85
+  → resolves to image `php:8.5-apache`
 - If you **set** `PHP_IMAGE_TAG`, it overrides the automatic tag to pin a specific PHP patch version.  
   Example:  
-  PHP_VERSION=php84  
-  PHP_IMAGE_TAG=8.4.4  
-  → resolves to image `php:8.4.4-apache`
+  PHP_VERSION=php85
+  PHP_IMAGE_TAG=8.5.11
+  → resolves to image `php:8.5.11-apache`
 
 **When to use it:**
-- To ensure every developer and CI environment runs the exact same PHP build.
+- To keep developers and CI on the same PHP patch tag.
 - When a specific patch release is required (e.g., for regression or dependency stability).
+
+Docker tags can be republished. A patch-level tag improves consistency but is not an immutable content lock.
 
 **When to leave it empty:**
 - During active development, when you want to automatically track the latest patch version for your PHP branch.
@@ -186,15 +193,17 @@ make shell
 wp --info
 ```
 
-The default version is `2.12.0`. To use another release, set `WP_CLI_VERSION` in `.env` and rebuild the web image:
+The latest stable release is installed by default. To pin a specific release, set its version in `.env` and rebuild the web image:
 
 ```dotenv
-WP_CLI_VERSION=2.11.0
+WP_CLI_VERSION=2.12.0
 ```
 
 ```bash
 docker compose up -d --build lamp_web
 ```
+
+WP-CLI `2.12.0` can emit an upstream PHP deprecation warning on PHP 8.5, but the command still runs successfully.
 
 ### Configuration files
 
@@ -224,7 +233,7 @@ Then restart the PHP container for the change to take effect:
 
 **Notes:**
 - When `ENABLE_XDEBUG=false` (default), Xdebug is not loaded.
-- When enabled, the entrypoint automatically adjusts PHP configuration to include `/usr/local/etc/php/conf.d/xdebug.ini`.
+- When enabled, the entrypoint automatically creates `/usr/local/etc/php/conf.d/100-xdebug.ini`.
 - No image rebuild is required — only a container restart.
 
 
@@ -241,6 +250,8 @@ Then restart the PHP container for the change to take effect:
 | **SQL_PORT** | Host port mapped to the database container’s internal port (default `3306`). |
 | **SQL_ROOT_PWD** | Root password for the database server. Used for administration and phpMyAdmin access. |
 | **SQL_DATA_PATH** | Absolute path on the host where database data is stored persistently. Example: `/home/your-user/db-data`. |
+
+Database directories are separated by engine and major/minor version. Patch tags in the same branch, such as `8.4` and `8.4.11`, use the same directory.
 
 **Note:**  
 Changes to `.env` variables do **not** require rebuilding the container images.  
@@ -303,6 +314,7 @@ Useful for compiling assets and running build pipelines.
 Web-based interface for managing the MySQL or MariaDB database.
 
 **Configuration (.env):**
+- `PMA_VERSION` — optional phpMyAdmin Docker image tag; leave empty to use `latest` (example: `PMA_VERSION=5.2.3`).
 - `PMA_PORT=8080` — port for phpMyAdmin web interface.
 
 **Start / Stop:**
@@ -322,6 +334,9 @@ Web-based interface for managing the MySQL or MariaDB database.
 
 In-memory key–value store for caching, sessions, and queues.
 
+**Configuration (.env):**
+- `REDIS_VERSION` — optional Redis Docker image tag; leave empty to use `latest` (example: `REDIS_VERSION=8.10`).
+
 **Start / Stop:**
 
     docker compose --profile with-redis up -d
@@ -334,10 +349,14 @@ In-memory key–value store for caching, sessions, and queues.
 **Notes:**
 - Data persisted via `redis-data` volume.
 - No authentication enabled by default (dev use only).
+- Using `latest` can cross major Redis versions; pin a tag when data compatibility matters.
 
 ### Mailpit (`lamp_mailpit`)
 
 Local SMTP testing tool with web interface for viewing captured emails.
+
+**Configuration (.env):**
+- `MAILPIT_VERSION` — optional Mailpit Docker image tag; leave empty to use `latest` (example: `MAILPIT_VERSION=v1.31.3`).
 
 **Ports (.env):**
 - `8025` — Web UI.
@@ -798,7 +817,7 @@ without changing the main Dockerfile of lamp_web.
 
 ### Default Example
 
-A file named `install.example.sh` is included in:
+A file named `install.example` is included in:
 
     config/php/custom/
 
@@ -816,7 +835,7 @@ To activate it, simply copy or rename it to `install.sh` (or any `.sh` filename)
 
 1. Duplicate the example file:
 
-       cp config/php/custom/install.example.sh config/php/custom/install.sh
+       cp config/php/custom/install.example config/php/custom/install.sh
 
 2. Edit it to include your custom installation steps (extensions, packages, etc.).
 3. Rebuild the web container:

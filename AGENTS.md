@@ -8,7 +8,7 @@ This repo is Dockerized local infrastructure (LAMP + optional services), not a s
 - Main mutable logic: Bash/PowerShell scripts in `scripts/`.
 - Optional containers: `lamp_node`, `lamp_redis`, `lamp_pma`, `lamp_mailpit`.
 - Current PHP image directories: `php56`, `php70`-`php74`, and `php80`-`php85`.
-- Current default image settings: Compose falls back to PHP `php84`, MySQL `8.4`, and Node `24`.
+- Current default image settings: Compose falls back to PHP `php85`, MySQL `8.4`, Node `24`, and the latest Redis, phpMyAdmin, Mailpit, and stable WP-CLI releases.
 - `lamp_web` supports optional host mounts `EXTRA_SHARED_0` through `EXTRA_SHARED_9` at `/mnt/shared0` through `/mnt/shared9`.
 - Repo PHP (`app/index.php`) is only a placeholder landing page.
 - Most application code normally lives in mounted `${WEB_ROOT}`.
