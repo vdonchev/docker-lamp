@@ -36,6 +36,11 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     opcache \
     xsl
 
+# IMAP moved to PECL in PHP 8.4; retain SSL/TLS and Kerberos support.
+COPY --from=mlocati/php-extension-installer:2.12.0 /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions imap-1.0.3 \
+ && rm /usr/local/bin/install-php-extensions
+
 # Install imagick php extension
 RUN pecl install imagick \
  && docker-php-ext-enable imagick

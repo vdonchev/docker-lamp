@@ -205,6 +205,24 @@ docker compose up -d --build lamp_web
 
 WP-CLI `2.12.0` can emit an upstream PHP deprecation warning on PHP 8.5, but the command still runs successfully.
 
+### IMAP
+
+IMAP is installed and enabled by default in the PHP 8.0 through 8.5 web images, with SSL/TLS and Kerberos support. It is available to both CLI PHP and Apache without extra configuration.
+
+- PHP 8.0–8.3 use the bundled IMAP extension.
+- PHP 8.4–8.5 use PECL IMAP pinned to `1.0.3`, since IMAP is no longer bundled with PHP.
+
+All six images use [`docker-php-extension-installer`](https://github.com/mlocati/docker-php-extension-installer) pinned to `2.12.0` to handle the required dependencies for their Debian base images.
+
+Rebuild your selected PHP image and verify the extension:
+
+```bash
+make rebuild
+docker compose exec lamp_web php --ri imap
+```
+
+The output should report `IMAP c-Client Version`, `SSL Support => enabled`, and `Kerberos Support => enabled`.
+
 ### Configuration files
 
 Default PHP settings are defined in `./config/php/conf.d/php.ini`.  
